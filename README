@@ -1,0 +1,14 @@
+# Insight Mapper (Phase 1 Prototype)
+
+This is a minimal Flask + MongoDB prototype to demonstrate a search tool for mapping client data fields to standardized insights like Denial Rate, Net Collection %, etc.
+
+## Features
+- Search insights by name
+- View calculation logic
+- See products using the insight
+- Get client-specific field mappings
+
+## Run locally
+```bash
+pip install -r requirements.txt
+python app.py
