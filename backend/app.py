@@ -16,14 +16,14 @@ def search_insight():
     if not query:
         return jsonify({"error": "Missing search query ?q="}), 400
 
-    insight = db.insights.find_one({"insightName": {"$regex": query, "$options": "i"}})
+    insight = db.Insights.find_one({"insightName": {"$regex": query, "$options": "i"}})
 
     if not insight:
         return jsonify({"message": "Insight not found."}), 404
 
     data_points = []
     for dp_name in insight.get("dataPoints", []):
-        dp = db.dataPoints.find_one({"name": dp_name})
+        dp = db.DataPoints.find_one({"name": dp_name})
         if dp:
             data_points.append({
                 "name": dp["name"],
