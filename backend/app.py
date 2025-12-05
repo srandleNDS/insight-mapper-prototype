@@ -27,7 +27,7 @@ def search_insight():
         if dp:
             data_points.append({
                 "name": dp["name"],
-                "mappings": dp.get("clientMappings", [])
+                "sourceMapping": dp.get("sourceMapping", [])
             })
 
     return jsonify({
@@ -39,8 +39,33 @@ def search_insight():
 
 @app.route("/api/insights", methods=["GET"])
 def list_insights():
-    insights = db.insights.find({}, {"insightName": 1, "_id": 0})
-    return dumps(insights)
+    cursor = db.Insights.find({}, {"insightName": 1, "_id": 0})
+    insights = list(cursor)
+    return jsonify(insights)
+
+@app.route("/api/insight/all", methods=["GET"])
+def get_all_insights():
+    results = []
+    insights = db.Insights.find()
+
+    for insight in insights:
+        for dp_name in insight.get("dataPoints", []):
+            dp = db.DataPoints.find_one({"name": dp_name})
+            if dp:
+                for mapping in dp.get("sourceMapping", []):
+                    results.append({
+                        "insightName": insight["insightName"],
+                        "calculation": insight["calculation"],
+                        "productsUsedIn": insight.get("productsUsedIn", []),
+                        "dataPoint": dp["name"],
+                        "sourceName": mapping.get("sourceName", ""),
+                        "sourceSystem": mapping.get("sourceSystem", ""),
+                        "table": mapping.get("table", ""),
+                        "field": mapping.get("field", ""),
+                        "dataType": mapping.get("dataType", "")
+                    })
+
+    return jsonify(results)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
