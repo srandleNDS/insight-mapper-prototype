@@ -78,13 +78,69 @@ def get_all_insights():
     insights = Insight.query.all()
 
     for insight in insights:
+        data_points = []
+        
         if not insight.data_points:
-            # Handle insights with NO data points at all
-            results.append({
-                "insightName": insight.insight_name,
-                "calculation": insight.calculation or "",
-                "productsUsedIn": insight.products_used_in or [],
-                "dataPoint": "N/A",
+            data_points.append({
+                "name": "N/A",
+                "sourceMapping": [{
+                    "sourceName": "UNMAPPED",
+                    "sourceSystem": "",
+                    "table": "",
+                    "field": "",
+                    "dataType": "",
+                    "isUnmapped": True
+                }]
+            })
+        else:
+            for dp in insight.data_points:
+                source_mappings = []
+                if not dp.source_mappings:
+                    source_mappings.append({
+                        "sourceName": "UNMAPPED",
+                        "sourceSystem": "",
+                        "table": "",
+                        "field": "",
+                        "dataType": "",
+                        "isUnmapped": True
+                    })
+                else:
+                    for sm in dp.source_mappings:
+                        source_mappings.append({
+                            "sourceName": sm.source_name or "",
+                            "sourceSystem": sm.source_system or "",
+                            "table": sm.table or "",
+                            "field": sm.field or "",
+                            "dataType": sm.data_type or "",
+                            "isUnmapped": False
+                        })
+                data_points.append({
+                    "name": dp.name,
+                    "sourceMapping": source_mappings
+                })
+
+        results.append({
+            "id": insight.id,
+            "insightName": insight.insight_name,
+            "calculation": insight.calculation or "",
+            "productsUsedIn": insight.products_used_in or [],
+            "dataPoints": data_points
+        })
+
+    return jsonify(results)
+
+@app.route("/api/insight/<int:insight_id>", methods=["GET"])
+def get_insight_by_id(insight_id):
+    insight = Insight.query.get(insight_id)
+    
+    if not insight:
+        return jsonify({"error": "Insight not found"}), 404
+    
+    data_points = []
+    for dp in insight.data_points:
+        source_mappings = []
+        if not dp.source_mappings:
+            source_mappings.append({
                 "sourceName": "UNMAPPED",
                 "sourceSystem": "",
                 "table": "",
@@ -92,39 +148,28 @@ def get_all_insights():
                 "dataType": "",
                 "isUnmapped": True
             })
-            continue
-
-        for dp in insight.data_points:
-            if not dp.source_mappings:
-                # Handle data points with NO source mappings
-                results.append({
-                    "insightName": insight.insight_name,
-                    "calculation": insight.calculation or "",
-                    "productsUsedIn": insight.products_used_in or [],
-                    "dataPoint": dp.name,
-                    "sourceName": "UNMAPPED",
-                    "sourceSystem": "",
-                    "table": "",
-                    "field": "",
-                    "dataType": "",
-                    "isUnmapped": True
+        else:
+            for sm in dp.source_mappings:
+                source_mappings.append({
+                    "sourceName": sm.source_name or "",
+                    "sourceSystem": sm.source_system or "",
+                    "table": sm.table or "",
+                    "field": sm.field or "",
+                    "dataType": sm.data_type or "",
+                    "isUnmapped": False
                 })
-            else:
-                for sm in dp.source_mappings:
-                    results.append({
-                        "insightName": insight.insight_name,
-                        "calculation": insight.calculation or "",
-                        "productsUsedIn": insight.products_used_in or [],
-                        "dataPoint": dp.name,
-                        "sourceName": sm.source_name or "",
-                        "sourceSystem": sm.source_system or "",
-                        "table": sm.table or "",
-                        "field": sm.field or "",
-                        "dataType": sm.data_type or "",
-                        "isUnmapped": False
-                    })
-
-    return jsonify(results)
+        data_points.append({
+            "name": dp.name,
+            "sourceMapping": source_mappings
+        })
+    
+    return jsonify({
+        "id": insight.id,
+        "insightName": insight.insight_name,
+        "calculation": insight.calculation or "",
+        "productsUsedIn": insight.products_used_in or [],
+        "dataPoints": data_points
+    })
 
 if __name__ == "__main__":
     app.run(debug=True, host="localhost", port=8000)
