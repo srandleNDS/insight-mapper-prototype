@@ -9,16 +9,10 @@ export default function MappingsExplorer() {
   const [viewMode, setViewMode] = useState('grouped');
   const [expandedRows, setExpandedRows] = useState({});
   const [expandedData, setExpandedData] = useState({});
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [page] = useState(1);
   const { filters } = useFilters() || { filters: { tabName: [], filterContext: [], sourceType: [], incompleteOnly: false } };
 
-  useEffect(() => {
-    fetchData();
-  }, [page, filters.incompleteOnly]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     try {
       setLoading(true);
       const searchQuery = searchParams.get('search') || '';
@@ -32,14 +26,16 @@ export default function MappingsExplorer() {
       const res = await fetch(`/api/insight/list?${params}`);
       const json = await res.json();
       setData(json.data || []);
-      setTotalPages(json.totalPages || 1);
-      setTotal(json.total || 0);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching data:', err);
       setLoading(false);
     }
-  };
+  }, [page, filters.incompleteOnly, searchParams]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const fetchExpandedData = async (insightId) => {
     if (expandedData[insightId]) return;

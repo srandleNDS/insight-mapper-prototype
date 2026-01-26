@@ -149,7 +149,7 @@ def get_all_insights():
 
 @app.route("/api/insight/<int:insight_id>", methods=["GET"])
 def get_insight_by_id(insight_id):
-    insight = Insight.query.get(insight_id)
+    insight = db.session.get(Insight, insight_id)
     
     if not insight:
         return jsonify({"error": "Insight not found"}), 404
