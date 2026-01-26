@@ -156,111 +156,153 @@ export default function InsightSearch() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] py-12 px-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+    <div className="min-h-screen bg-[#f7f7f7] flex flex-col">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-100 py-4 px-8 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="bg-[#18A69B] w-8 h-8 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase">
               Insight<span className="text-[#18A69B]">Mapper</span>
             </h1>
-            <p className="text-gray-500 font-medium">Enterprise Data Visualization Mapping Engine</p>
           </div>
-          <button 
-            onClick={handleReset}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#18A69B] transition-colors group"
-          >
-            <svg className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            Reset Dashboard
-          </button>
-        </div>
-
-        {/* Filter Section */}
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-6 items-end">
-          <div className="flex-1 w-full">
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Target Visualization</label>
-            <div className="relative">
-              <select
-                className="appearance-none bg-[#f7f7f7] border-0 rounded-xl px-5 py-4 w-full text-gray-700 font-medium focus:ring-2 focus:ring-[#18A69B] transition-all outline-none"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              >
-                <option value="">Search all visualizations...</option>
-                {insightOptions.map((insight, idx) => (
-                  <option key={idx} value={insight}>{insight}</option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
-                <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-              </div>
+          <nav className="hidden md:flex items-center gap-8">
+            <button onClick={handleReset} className="text-sm font-bold text-gray-500 hover:text-[#18A69B] transition-colors">Inventory</button>
+            <span className="w-px h-4 bg-gray-200"></span>
+            <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
+              <span className="w-2 h-2 rounded-full bg-green-500"></span>
+              SYSTEM ONLINE
             </div>
-          </div>
-
-          <button
-            onClick={filterByInsight}
-            className="w-full md:w-auto bg-[#18A69B] text-white px-10 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-[#18A69B]/30 active:scale-95 transition-all"
-          >
-            Analyze Mapping
-          </button>
+          </nav>
         </div>
+      </header>
 
-        {error && (
-          <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg">
-            <p className="text-sm text-orange-700 font-medium flex items-center gap-2">
-              <span>⚠️</span> {error}
-            </p>
+      {/* Body */}
+      <main className="flex-grow py-12 px-6">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-1">
+              <h2 className="text-3xl font-black text-gray-900 tracking-tight">Data Visualization Engine</h2>
+              <p className="text-gray-500 font-medium text-sm">Mapping source resources to enterprise insights.</p>
+            </div>
+            <button 
+              onClick={handleReset}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#18A69B] transition-colors group bg-white border border-gray-100 rounded-lg shadow-sm"
+            >
+              <svg className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              Home / Reset
+            </button>
           </div>
-        )}
 
-        {/* Filtered Insight Summary + Table */}
-        {filteredInsight && (
-          <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-8 mb-8">
-              <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-                <div className="space-y-4 flex-1">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 rounded-full bg-[#18A69B] animate-pulse"></span>
-                    <h2 className="text-3xl font-black text-gray-800">{filteredInsight.insightName}</h2>
-                  </div>
-                  <div className="flex gap-2">
-                    {filteredInsight.productsUsedIn.map((p, i) => (
-                      <span key={i} className="bg-[#18A69B]/5 text-[#18A69B] border border-[#18A69B]/10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">{p}</span>
-                    ))}
-                  </div>
-                  <div className="pt-4 border-t border-gray-50">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Processing Logic</span>
-                    <p className="mt-2 text-gray-600 text-sm leading-relaxed italic">"{filteredInsight.calculation}"</p>
-                  </div>
+          {/* Filter Section */}
+          <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-6 items-end">
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Target Insight</label>
+              <div className="relative">
+                <select
+                  className="appearance-none bg-[#f7f7f7] border-0 rounded-xl px-5 py-4 w-full text-gray-700 font-medium focus:ring-2 focus:ring-[#18A69B] transition-all outline-none"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                >
+                  <option value="">Search all visualizations...</option>
+                  {insightOptions.map((insight, idx) => (
+                    <option key={idx} value={insight}>{insight}</option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                  <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                 </div>
               </div>
             </div>
 
-            {renderFilteredTable(
-              filteredInsight.dataPoints.flatMap(dp =>
-                (Array.isArray(dp.sourceMapping) ? dp.sourceMapping : []).map(m => ({
-                  dataPoint: dp.name,
-                  sourceName: m.sourceName,
-                  sourceSystem: m.sourceSystem,
-                  table: m.table,
-                  field: m.field,
-                  dataType: m.dataType,
-                  isUnmapped: m.isUnmapped
-                }))
-              )
-            )}
-          </div>
-        )}
+            <button
+              onClick={filterByInsight}
+              className="w-full md:w-auto bg-[#18A69B] text-white px-10 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-[#18A69B]/30 active:scale-95 transition-all"
+            >
+              Run Mapping Analysis
+            </button>
+          </section>
 
-        {/* Show full insight list only if NOT filtered */}
-        {!query && (
-          <div className="space-y-6 pt-4">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-1 bg-[#18A69B] rounded-full"></div>
-              <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight">Full Resource Inventory</h2>
+          {error && (
+            <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg animate-bounce">
+              <p className="text-sm text-orange-700 font-medium flex items-center gap-2">
+                <span>⚠️</span> {error}
+              </p>
             </div>
-            {renderFullTable(allData)}
+          )}
+
+          {/* Filtered Insight Summary + Table */}
+          {filteredInsight && (
+            <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 space-y-8">
+              <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-8">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+                  <div className="space-y-4 flex-1">
+                    <div className="flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-[#18A69B] animate-pulse"></span>
+                      <h2 className="text-3xl font-black text-gray-800">{filteredInsight.insightName}</h2>
+                    </div>
+                    <div className="flex gap-2">
+                      {filteredInsight.productsUsedIn.map((p, i) => (
+                        <span key={i} className="bg-[#18A69B]/5 text-[#18A69B] border border-[#18A69B]/10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">{p}</span>
+                      ))}
+                    </div>
+                    <div className="pt-4 border-t border-gray-50">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Logic Reference</span>
+                      <p className="mt-2 text-gray-600 text-sm leading-relaxed italic">"{filteredInsight.calculation}"</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {renderFilteredTable(
+                filteredInsight.dataPoints.flatMap(dp =>
+                  (Array.isArray(dp.sourceMapping) ? dp.sourceMapping : []).map(m => ({
+                    dataPoint: dp.name,
+                    sourceName: m.sourceName,
+                    sourceSystem: m.sourceSystem,
+                    table: m.table,
+                    field: m.field,
+                    dataType: m.dataType,
+                    isUnmapped: m.isUnmapped
+                  }))
+                )
+              )}
+            </div>
+          )}
+
+          {/* Show full insight list only if NOT filtered */}
+          {!query && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-1 bg-[#18A69B] rounded-full"></div>
+                  <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight">Mapping Inventory</h2>
+                </div>
+              </div>
+              {renderFullTable(allData)}
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-100 py-12 px-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="space-y-2 text-center md:text-left">
+            <h3 className="text-sm font-black text-gray-900 tracking-tight uppercase">
+              Insight<span className="text-[#18A69B]">Mapper</span>
+            </h3>
+            <p className="text-xs text-gray-400">Enterprise Data Governance & Mapping Solution</p>
           </div>
-        )}
-      </div>
+          <div className="flex gap-8 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            <span>© 2026 INTERNAL TOOLS</span>
+            <span className="text-gray-200">|</span>
+            <span>RESTRICTED ACCESS</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
