@@ -1,0 +1,1418 @@
+Product,Tab Name,Data Visualization,Data Viz Calculation,Data Point,Data Point Calculation,Data Dictionary Table,Data Dictionary Field,DD Data Type,Source Type,Source Data Collection,Source Table,Source Column Name,Source Data Type
+DenialIQ,Claim Detail,Claim #,,InsuranceClaimID,InsuranceClaimID,claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,Claim Detail,DOB,,DateOfBirth,dob,patient,dob,Date,,,,,
+DenialIQ,Claim Detail,Subscriber Name,Concat(SubscriberFirstName + SubscriberLastName),SubscriberFirstName,SubscriberFirstName,patient,SubscriberFirstName,VARCHAR,,,,,
+DenialIQ,Claim Detail,Subscriber Name,Concat(SubscriberFirstName + SubscriberLastName),SubscriberLastName,SubscriberLastName,patient,SubscriberLastName,VARCHAR,,,,,
+DenialIQ,Claim Detail,Subscriber ID,,,InsuranceClaimID,patient,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,Claim Detail,Practice/Location,If Practice IS NOT NULL ELSE Location,Practice,Practice,provider,Practice,VARCHAR,,,,,
+DenialIQ,Claim Detail,Practice/Location,If Practice' S NOT NULL ELSE Location,Location,Location,provider,Location,VARCHAR,,,,,
+DenialIQ,Claim Detail,Provider,,Provider,Provider,provider,Provider,VARCHAR,,,,,
+DenialIQ,Claim Detail,NPI,,NationalProviderIdentifier,NationalProviderIdentifier,provider,NationalProviderIdentifier,VARCHAR,,,,,
+DenialIQ,Claim Detail,Tax ID,,TaxID,TaxID,Provider,TaxID,INT,,,,,
+DenialIQ,Claim Detail,Date of Service,,DateOfService,DateOfService,claims,DateOfService,date,,,,,
+DenialIQ,Claim Detail,Received,,ChargeSubmittedDate,PostDate,transactions,PostDate,date,,,,,
+DenialIQ,Claim Detail,Aging,"DATEDIFF(DAY, GETDATE(), ChargeSubmittedDate)",ChargeSubmittedDate,PostDate,transactions,PostDate,date,,,,,
+DenialIQ,Claim Detail,Payment Date,,PostDate,PaymentPostDate,transactions,PaymentPostDate,date,,,,,
+DenialIQ,Claim Detail,Deposit Created,,,DepositCreated,Transaction,DepositCreated,,,,,,
+DenialIQ,Claim Detail,Payer,,Payer,Payer,payer,Payer,VARCHAR,,,,,
+DenialIQ,Claim Detail,Remittance Method,,RemittanceMethod,RemittanceType,transactions,RemittanceType,VARCHAR,,,,,
+DenialIQ,Claim Detail,Payment Method,,,PaymentType,transactions,PaymentType,VARCHAR,,,,,
+DenialIQ,Claim Detail,Network,,,Network,Payer?,Network,VARCHAR,,,,,
+DenialIQ,Claim Detail,Reason Code,,DenialReason,DenialReason,transactions,DenialReason,VARCHAR,,,,,
+DenialIQ,Claim Detail,Insurance Bal. Due,WHERE PayerType = 'Insurance',Balance,Balance,transactions,Balance,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Insurance Bal. Due,,PayerType,PayerType,transactions,PayerType,VARCHAR,,,,,
+DenialIQ,Claim Detail,Patient Bal. Due,WHERE PayerType = 'Patient',Balance,Balance,transactions,Balance,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Patient Bal. Due,,PayerType,PayerType,transactions,PayerType,VARCHAR,,,,,
+DenialIQ,Claim Detail,Primary Ins.,WHERE PrimarySecondayTertiary = 'Primary',PrimarySecondayTertiary,PrimarySecondayTertiary,payer,PrimarySecondayTertiary,VARCHAR,,,,,
+DenialIQ,Claim Detail,Primary Ins.,,Payer,Payer,payer,Payer,VARCHAR,,,,,
+DenialIQ,Claim Detail,Secondary Ins.,WHERE PrimarySecondayTertiary = 'Secondary',PrimarySecondayTertiary,PrimarySecondayTertiary,payer,PrimarySecondayTertiary,VARCHAR,,,,,
+DenialIQ,Claim Detail,Secondary Ins.,,Payer,Payer,payer,Payer,VARCHAR,,,,,
+DenialIQ,Claim Detail,Tertiary Ins.,WHERE PrimarySecondayTertiary = 'Tertiary',PrimarySecondayTertiary,PrimarySecondayTertiary,payer,PrimarySecondayTertiary,VARCHAR,,,,,
+DenialIQ,Claim Detail,Tertiary Ins.,,Payer,Payer,payer,Payer,VARCHAR,,,,,
+DenialIQ,Claim Detail,DOS,,DateOfService,DateOfService,claims,DateOfService,date,,,,,
+DenialIQ,Claim Detail,Proc. Code,,ProcedureCode,ProcedureCode,transactions,ProcedureCode,VARCHAR,,,,,
+DenialIQ,Claim Detail,Charge,,Charge,CurrentPeriodCharges,transactions,CurrentPeriodCharges,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Ins. Paid,,InsuranceCollection,TrxAmt,transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Allowed,,AllowedAmount,ContractedRate,transactions,ContractedRate,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Contractual Adjustment,,ContractualAdjustment,ContractualAdjustment,Transaction,ContractualAdjustment,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Transactions Adj.,,Adjustment,AdjustedCharges,transactions,AdjustedCharges,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Patient Resp.,,,TrxAmt,transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Deductable,,,Deductable,,Deductable,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Co-Pay,,,CoPay,,CoPay,"float(10,2)",,,,,
+DenialIQ,Claim Detail,Reason Code,,DenialReason,DenialReason,,DenialReason,VARCHAR,,,,,
+DenialIQ,Claim Queue,Priority (MY QUEUE),,,Priority,Users,Priority,,,,,,
+DenialIQ,Claim Queue,Patient (MY QUEUE),,PatientName,PatientName,patient,PatientName,VARCHAR,,,,,
+DenialIQ,Claim Queue,Claim # (MY QUEUE),,InsuranceClaimID,InsuranceClaimID,claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,Claim Queue,Payer (MY QUEUE),,Payer,Payer,payer,Payer,VARCHAR,,,,,
+DenialIQ,Claim Queue,Submitted Date (MY QUEUE),,ClaimSubmittedDate,ClaimSubmittedDate,,ClaimSubmittedDate,date,,,,,
+DenialIQ,Claim Queue,Charged (MY QUEUE),,Charge,ChargeAmt,claims,ChargeAmt,"float(10,2)",,,,,
+DenialIQ,Claim Queue,Ins. Balance (MY QUEUE),WHERE PayerType = 'Insurance',Balance,Balance,transactions,Balance,"float(10,2)",,,,,
+DenialIQ,Claim Queue,Ins. Balance (MY QUEUE),,PayerType,PayerType,transactions,PayerType,VARCHAR,,,,,
+DenialIQ,Claim Queue,Issue (MY QUEUE),,Issue,Issue (CARCCode),Claims?,Issue (CARCCode),VARCHAR,,,,,
+DenialIQ,Claim Queue,Aging (MY QUEUE),"DATEDIFF(DAY, GETDATE(), ChargeSubmittedDate)",ChargeSubmittedDate,ChargeSubmittedDate,,ChargeSubmittedDate,date,,,,,
+DenialIQ,Claim Queue,Progress (MY QUEUE),,,Progress,Users,Progress,,,,,,
+DenialIQ,Claim Queue,Priority (ESCALATED),,,Priority,Users,Priority,,,,,,
+DenialIQ,Claim Queue,Patient (ESCALATED),,PatientName,PatientName,patient,PatientName,VARCHAR,,,,,
+DenialIQ,Claim Queue,Claim # (ESCALATED),,InsuranceClaimID,InsuranceClaimID,claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,Claim Queue,Payer (ESCALATED),,Payer,Payer,payer,Payer,VARCHAR,,,,,
+DenialIQ,Claim Queue,Submitted Date (ESCALATED),,ClaimSubmittedDate,ClaimSubmittedDate,,ClaimSubmittedDate,date,,,,,
+DenialIQ,Claim Queue,Charged (ESCALATED),,Charge,ChargeAmt,claims,ChargeAmt,"float(10,2)",,,,,
+DenialIQ,Claim Queue,Ins. Balance (ESCALATED),WHERE PayerType = 'Insurance',Balance,Balance,transactions,Balance,"float(10,2)",,,,,
+DenialIQ,Claim Queue,Ins. Balance (ESCALATED),,PayerType,PayerType,transactions,PayerType,VARCHAR,,,,,
+DenialIQ,Claim Queue,Issue (ESCALATED),,Issue,Issue (CARCCode),Claims?,Issue (CARCCode),VARCHAR,,,,,
+DenialIQ,Claim Queue,Aging (ESCALATED),"DATEDIFF(DAY, GETDATE(), ChargeSubmittedDate)",ChargeSubmittedDate,ChargeSubmittedDate,,ChargeSubmittedDate,date,,,,,
+DenialIQ,Claim Queue,Progress (ESCALATED),,,Progress,Users,Progress,,,,,,
+DenialIQ,Claim Queue,Priority (UNASSIGNED),,,Priority,Users,Priority,,,,,,
+DenialIQ,Claim Queue,Patient (UNASSIGNED),,PatientName,PatientName,patient,PatientName,VARCHAR,,,,,
+DenialIQ,Claim Queue,Claim # (UNASSIGNED),,InsuranceClaimID,InsuranceClaimID,claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,Claim Queue,Payer (UNASSIGNED),,Payer,Payer,payer,Payer,VARCHAR,,,,,
+DenialIQ,Claim Queue,Submitted Date (UNASSIGNED),,ClaimSubmittedDate,ClaimSubmittedDate,,ClaimSubmittedDate,date,,,,,
+DenialIQ,Claim Queue,Charged (UNASSIGNED),,Charge,ChargeAmt,claims,ChargeAmt,"float(10,2)",,,,,
+DenialIQ,Claim Queue,Ins. Balance (UNASSIGNED),WHERE PayerType = 'Insurance',Balance,Balance,transactions,Balance,"float(10,2)",,,,,
+DenialIQ,Claim Queue,Ins. Balance (UNASSIGNED),,PayerType,PayerType,transactions,PayerType,VARCHAR,,,,,
+DenialIQ,Claim Queue,Issue (UNASSIGNED),,Issue,Issue (CARCCode),Claims?,Issue (CARCCode),VARCHAR,,,,,
+DenialIQ,Claim Queue,Aging (UNASSIGNED),"DATEDIFF(DAY, GETDATE(), ChargeSubmittedDate)",ChargeSubmittedDate,ChargeSubmittedDate,,ChargeSubmittedDate,date,,,,,
+DenialIQ,Claim Queue,Progress (UNASSIGNED),,,Progress,Users,Progress,,,,,,
+DenialIQ,AR Specialist Landing Page,Claims in My Queue,COUNT(DISTINCT(InsuranceClaimID)) WHERE 'AssignedTo' = UserName,,InsuranceClaimID,claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Claims in My Queue,COUNT(DISTINCT(InsuranceClaimID)) WHERE 'AssignedTo' = UserName,,AssignedTo,users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Urgent Claims,"COUNT(DISTINCT(InsuranceClaimID)) WHERE AssignedTo = UserName AND DATEDIFF(DAY, GETDATE(), ChargeSubmittedDate) > 20 ",,InsuranceClaimID,claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Urgent Claims,"COUNT(DISTINCT(InsuranceClaimID)) WHERE AssignedTo = UserName AND DATEDIFF(DAY, GETDATE(), ChargeSubmittedDate) > 20 ",,AssignedTo,users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Urgent Claims,"COUNT(DISTINCT(InsuranceClaimID)) WHERE AssignedTo = UserName AND DATEDIFF(DAY, GETDATE(), ChargeSubmittedDate) > 20 ",ChargeSubmittedDate,ChargeSubmittedDate,Claims,ChargeSubmittedDate,date,,,,,
+DenialIQ,AR Specialist Landing Page,Recoverable Revenue,SUM(ClaimBalance) WHERE  AssignedTo = UserID,,Balance,transactions,Balance,"float(10,2)",,,,,
+DenialIQ,AR Specialist Landing Page,Recoverable Revenue,SUM(ClaimBalance) WHERE  AssignedTo = UserID,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This week),SUM(HoursWork) WHERE AssignedTo = UserName,,WeekName,Users,WeekName,,,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This week),SUM(HoursWork) WHERE AssignedTo = UserID,,HoursWorked,Users,HoursWorked,"float(3,2)",,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This week),SUM(HoursWork) WHERE AssignedTo = UserID,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This week),SUM(HoursWork) / (SUM(HoursWorked) WHERE Year(WeekName) = year),,WeekName,Users,WeekName,,,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This week),,,HoursWorked,Users,HoursWorked,"float(3,2)",,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This week),,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Current Claims Completed (This week),,,CurrentWeek,Users,CurrentWeek,,,,,,
+DenialIQ,AR Specialist Landing Page,Current Claims Completed (This week),,,InsuranceClaimID,Claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,,Current Claims Completed (This week),,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This week),,,CurrentWeek,Users,CurrentWeek,,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This week),,,InsuranceClaimID,Claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This week),,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This month),,,Month,Users,Month,date,,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This month),SUM(HoursWork) WHERE AssignedTo = UserID,,HoursWorked,Users,HoursWorked,"float(3,2)",,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This month),SUM(HoursWork) WHERE AssignedTo = UserID,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This month),,,Month,Users,Month,date,,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This month),,,HoursWorked,Users,HoursWorked,"float(3,2)",,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This month),,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Current Claims Completed (This month),,,Month,Users,Month,date,,,,,
+DenialIQ,AR Specialist Landing Page,Current Claims Completed (This month),,,InsuranceClaimID,Claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Current Claims Completed (This month),,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This month),,,Month,Users,Month,date,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This month),,,InsuranceClaimID,Claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This month),,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This year),,,Year,Users,Year,date,,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This year),SUM(HoursWork) WHERE AssignedTo = UserID,,HoursWorked,Users,HoursWorked,"float(3,2)",,,,,
+DenialIQ,AR Specialist Landing Page,Current Hours Worked (This year),SUM(HoursWork) WHERE AssignedTo = UserID,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This year),,,Year,Users,Year,date,,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This year),,,HoursWorked,Users,HoursWorked,"float(3,2)",,,,,
+DenialIQ,AR Specialist Landing Page,Average Hours Worked (This year),,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Current Claims Completed (This year),,,Year,Users,Year,date,,,,,
+DenialIQ,AR Specialist Landing Page,Current Claims Completed (This year),,,InsuranceClaimID,Claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Current Claims Completed (This year),,,AssignedTo,Users,AssignedTo,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This year),,,Year,Users,Year,date,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This year),,,InsuranceClaimID,Claims,InsuranceClaimID,VARCHAR,,,,,
+DenialIQ,AR Specialist Landing Page,Average Claims Completed (This year),,,AssignedTo,Claims,AssignedTo,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Charges,"SUM(
+              CASE 
+                WHEN TrxType IN ('Charge', 'CHARGE', 'CHG') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalCharges  GROUPBY ManagerName",UserID,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Charges,"SUM(
+              CASE 
+                WHEN TrxType IN ('Charge', 'CHARGE', 'CHG') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalCharges   GROUPBY ManagerName",,TrxType,Transactions,TrxType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Charges,"SUM(
+              CASE 
+                WHEN TrxType IN ('Charge', 'CHARGE', 'CHG') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalCharges   GROUPBY ManagerName",,TrxAmt,Transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Posted Payments," SUM(
+              CASE 
+                WHEN TrxType IN ('Payment', 'PAYMENT', 'PMT') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalPostedPayments   GROUPBY ManagerName",UserID,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Posted Payments," SUM(
+              CASE 
+                WHEN TrxType IN ('Payment', 'PAYMENT', 'PMT') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalPostedPayments   GROUPBY ManagerName",,TrxType,Transactions,TrxType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Posted Payments," SUM(
+              CASE 
+                WHEN TrxType IN ('Payment', 'PAYMENT', 'PMT') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalPostedPayments   GROUPBY ManagerName",,TrxAmt,Transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Adjustments,"SUM(
+              CASE 
+                WHEN TrxType IN ('Adjustment', 'ADJUSTMENT', 'ADJ') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalAdjustments  GROUPBY ManagerName",UserID,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Adjustments,"SUM(
+              CASE 
+                WHEN TrxType IN ('Adjustment', 'ADJUSTMENT', 'ADJ') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalAdjustments  GROUPBY ManagerName",,TrxType,Transactions,TrxType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Adjustments,"SUM(
+              CASE 
+                WHEN TrxType IN ('Adjustment', 'ADJUSTMENT', 'ADJ') 
+                  THEN ISNULL(TrxAmt, 0)
+                ELSE 0 
+              END
+            ) AS TotalAdjustments  GROUPBY ManagerName",,TrxAmt,Transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Net Collections %,"SELECT
+          @ReportDate AS ReportDate,
+          CAST(TotalCharges        AS decimal(18,2)) AS Charges,
+          CAST(TotalPostedPayments AS decimal(18,2)) AS PostedPayments,
+          CAST(TotalAdjustments    AS decimal(18,2)) AS Adjustments,
+          CASE 
+            WHEN (TotalCharges - TotalAdjustments) = 0 THEN NULL
+            ELSE CAST(
+              100.0 * TotalPostedPayments 
+              / (TotalCharges - TotalAdjustments) 
+              AS decimal(5,2)
+            )
+          END AS NetCollectionsPct",UserID,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Net Collections %,"SELECT
+          @ReportDate AS ReportDate,
+          CAST(TotalCharges        AS decimal(18,2)) AS Charges,
+          CAST(TotalPostedPayments AS decimal(18,2)) AS PostedPayments,
+          CAST(TotalAdjustments    AS decimal(18,2)) AS Adjustments,
+          CASE 
+            WHEN (TotalCharges - TotalAdjustments) = 0 THEN NULL
+            ELSE CAST(
+              100.0 * TotalPostedPayments 
+              / (TotalCharges - TotalAdjustments) 
+              AS decimal(5,2)
+            )
+          END AS NetCollectionsPct",,TrxType,Transactions,TrxType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Net Collections %,"SELECT
+          @ReportDate AS ReportDate,
+          CAST(TotalCharges        AS decimal(18,2)) AS Charges,
+          CAST(TotalPostedPayments AS decimal(18,2)) AS PostedPayments,
+          CAST(TotalAdjustments    AS decimal(18,2)) AS Adjustments,
+          CASE 
+            WHEN (TotalCharges - TotalAdjustments) = 0 THEN NULL
+            ELSE CAST(
+              100.0 * TotalPostedPayments 
+              / (TotalCharges - TotalAdjustments) 
+              AS decimal(5,2)
+            )
+          END AS NetCollectionsPct",,TrxAmt,Transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Accounts Receivable,"DECLARE @Today date = CAST(GETDATE() AS date); DECLARE @AsOfDate date = @Today; DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate); WITH CurrentAR AS ( SELECT SUM( CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ) AS TotalAR, SUM( CASE WHEN PayerType = 'Insurance' THEN CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ELSE 0 END ) AS InsuranceAR, SUM( CASE WHEN PayerType = 'Patient' THEN CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ELSE 0 END ) AS PatientAR FROM recon_report WHERE DateOfService <= @AsOfDate ), PriorAR AS ( SELECT SUM( CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ) AS TotalAR30 FROM recon_report WHERE DateOfService <= @PriorAsOf ) SELECT @AsOfDate AS AsOfDate, c.TotalAR, c.InsuranceAR, c.PatientAR, CASE WHEN c.TotalAR = 0 THEN NULL ELSE CAST(100.0 * c.InsuranceAR / c.TotalAR AS decimal(5,2)) END AS InsurancePctOfTotal, CASE WHEN c.TotalAR = 0 THEN NULL ELSE CAST(100.0 * c.PatientAR / c.TotalAR AS decimal(5,2)) END AS PatientPctOfTotal, p.TotalAR30, CASE WHEN p.TotalAR30 IS NULL OR p.TotalAR30 = 0 THEN NULL ELSE CAST(100.0 * (c.TotalAR - p.TotalAR30) / p.TotalAR30 AS decimal(5,2)) END AS PctChangeLast30Days FROM CurrentAR c CROSS JOIN PriorAR p;",UserID,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Accounts Receivable,"DECLARE @Today date = CAST(GETDATE() AS date); DECLARE @AsOfDate date = @Today; DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate); WITH CurrentAR AS ( SELECT SUM( CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ) AS TotalAR, SUM( CASE WHEN PayerType = 'Insurance' THEN CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ELSE 0 END ) AS InsuranceAR, SUM( CASE WHEN PayerType = 'Patient' THEN CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ELSE 0 END ) AS PatientAR FROM recon_report WHERE DateOfService <= @AsOfDate ), PriorAR AS ( SELECT SUM( CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ) AS TotalAR30 FROM recon_report WHERE DateOfService <= @PriorAsOf ) SELECT @AsOfDate AS AsOfDate, c.TotalAR, c.InsuranceAR, c.PatientAR, CASE WHEN c.TotalAR = 0 THEN NULL ELSE CAST(100.0 * c.InsuranceAR / c.TotalAR AS decimal(5,2)) END AS InsurancePctOfTotal, CASE WHEN c.TotalAR = 0 THEN NULL ELSE CAST(100.0 * c.PatientAR / c.TotalAR AS decimal(5,2)) END AS PatientPctOfTotal, p.TotalAR30, CASE WHEN p.TotalAR30 IS NULL OR p.TotalAR30 = 0 THEN NULL ELSE CAST(100.0 * (c.TotalAR - p.TotalAR30) / p.TotalAR30 AS decimal(5,2)) END AS PctChangeLast30Days FROM CurrentAR c CROSS JOIN PriorAR p;",,TrxType,Transactions,TrxType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Accounts Receivable,"DECLARE @Today date = CAST(GETDATE() AS date); DECLARE @AsOfDate date = @Today; DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate); WITH CurrentAR AS ( SELECT SUM( CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ) AS TotalAR, SUM( CASE WHEN PayerType = 'Insurance' THEN CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ELSE 0 END ) AS InsuranceAR, SUM( CASE WHEN PayerType = 'Patient' THEN CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ELSE 0 END ) AS PatientAR FROM recon_report WHERE DateOfService <= @AsOfDate ), PriorAR AS ( SELECT SUM( CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ) AS TotalAR30 FROM recon_report WHERE DateOfService <= @PriorAsOf ) SELECT @AsOfDate AS AsOfDate, c.TotalAR, c.InsuranceAR, c.PatientAR, CASE WHEN c.TotalAR = 0 THEN NULL ELSE CAST(100.0 * c.InsuranceAR / c.TotalAR AS decimal(5,2)) END AS InsurancePctOfTotal, CASE WHEN c.TotalAR = 0 THEN NULL ELSE CAST(100.0 * c.PatientAR / c.TotalAR AS decimal(5,2)) END AS PatientPctOfTotal, p.TotalAR30, CASE WHEN p.TotalAR30 IS NULL OR p.TotalAR30 = 0 THEN NULL ELSE CAST(100.0 * (c.TotalAR - p.TotalAR30) / p.TotalAR30 AS decimal(5,2)) END AS PctChangeLast30Days FROM CurrentAR c CROSS JOIN PriorAR p;",,TrxAmt,Transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Accounts Receivable,"DECLARE @Today date = CAST(GETDATE() AS date); DECLARE @AsOfDate date = @Today; DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate); WITH CurrentAR AS ( SELECT SUM( CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ) AS TotalAR, SUM( CASE WHEN PayerType = 'Insurance' THEN CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ELSE 0 END ) AS InsuranceAR, SUM( CASE WHEN PayerType = 'Patient' THEN CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ELSE 0 END ) AS PatientAR FROM recon_report WHERE DateOfService <= @AsOfDate ), PriorAR AS ( SELECT SUM( CASE WHEN TrxType = 'Charge' THEN ISNULL(TrxAmt, 0) WHEN TrxType = 'Payment' THEN -ISNULL(TrxAmt, 0) WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0) ELSE 0 END ) AS TotalAR30 FROM recon_report WHERE DateOfService <= @PriorAsOf ) SELECT @AsOfDate AS AsOfDate, c.TotalAR, c.InsuranceAR, c.PatientAR, CASE WHEN c.TotalAR = 0 THEN NULL ELSE CAST(100.0 * c.InsuranceAR / c.TotalAR AS decimal(5,2)) END AS InsurancePctOfTotal, CASE WHEN c.TotalAR = 0 THEN NULL ELSE CAST(100.0 * c.PatientAR / c.TotalAR AS decimal(5,2)) END AS PatientPctOfTotal, p.TotalAR30, CASE WHEN p.TotalAR30 IS NULL OR p.TotalAR30 = 0 THEN NULL ELSE CAST(100.0 * (c.TotalAR - p.TotalAR30) / p.TotalAR30 AS decimal(5,2)) END AS PctChangeLast30Days FROM CurrentAR c CROSS JOIN PriorAR p;",,PayerType,Payer,PayerType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Total Payments,"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @AsOfDate date = @Today;
+DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate);
+
+WITH CurrentPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) AS InsurancePayments,
+        SUM(ISNULL(PatientCollections,0))   AS PatientPayments,
+        SUM(CASE WHEN TrxType = 'Adjustment' 
+                 THEN ISNULL(TrxAmt,0) ELSE 0 END) AS Adjustments,
+        SUM(ISNULL(Balance,0)) AS RemainingBalance,
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments
+    FROM PaymentsDataset
+    WHERE DateOfService <= @AsOfDate
+),
+
+PriorPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments30
+    FROM PaymentsDataset
+    WHERE DateOfService <= @PriorAsOf
+)
+
+SELECT
+    @AsOfDate AS AsOfDate,
+
+    c.TotalPayments,
+    c.InsurancePayments,
+    c.PatientPayments,
+    c.Adjustments,
+    c.RemainingBalance,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.InsurancePayments / c.TotalPayments AS decimal(6,2)) 
+    END AS InsurancePctOfTotal,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.PatientPayments / c.TotalPayments AS decimal(6,2)) 
+    END AS PatientPctOfTotal,
+
+    p.TotalPayments30,
+
+    CASE WHEN p.TotalPayments30 IS NULL OR p.TotalPayments30 = 0 
+         THEN NULL
+         ELSE CAST(100.0 * (c.TotalPayments - p.TotalPayments30) 
+                   / p.TotalPayments30 AS decimal(6,2)) 
+    END AS PctChangeLast30Days
+FROM CurrentPayments c
+CROSS JOIN PriorPayments p;
+",UserID,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Total Payments,"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @AsOfDate date = @Today;
+DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate);
+
+WITH CurrentPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) AS InsurancePayments,
+        SUM(ISNULL(PatientCollections,0))   AS PatientPayments,
+        SUM(CASE WHEN TrxType = 'Adjustment' 
+                 THEN ISNULL(TrxAmt,0) ELSE 0 END) AS Adjustments,
+        SUM(ISNULL(Balance,0)) AS RemainingBalance,
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments
+    FROM PaymentsDataset
+    WHERE DateOfService <= @AsOfDate
+),
+
+PriorPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments30
+    FROM PaymentsDataset
+    WHERE DateOfService <= @PriorAsOf
+)
+
+SELECT
+    @AsOfDate AS AsOfDate,
+
+    c.TotalPayments,
+    c.InsurancePayments,
+    c.PatientPayments,
+    c.Adjustments,
+    c.RemainingBalance,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.InsurancePayments / c.TotalPayments AS decimal(6,2)) 
+    END AS InsurancePctOfTotal,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.PatientPayments / c.TotalPayments AS decimal(6,2)) 
+    END AS PatientPctOfTotal,
+
+    p.TotalPayments30,
+
+    CASE WHEN p.TotalPayments30 IS NULL OR p.TotalPayments30 = 0 
+         THEN NULL
+         ELSE CAST(100.0 * (c.TotalPayments - p.TotalPayments30) 
+                   / p.TotalPayments30 AS decimal(6,2)) 
+    END AS PctChangeLast30Days
+FROM CurrentPayments c
+CROSS JOIN PriorPayments p;
+",,TrxType,Transactions,TrxType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Total Payments,"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @AsOfDate date = @Today;
+DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate);
+
+WITH CurrentPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) AS InsurancePayments,
+        SUM(ISNULL(PatientCollections,0))   AS PatientPayments,
+        SUM(CASE WHEN TrxType = 'Adjustment' 
+                 THEN ISNULL(TrxAmt,0) ELSE 0 END) AS Adjustments,
+        SUM(ISNULL(Balance,0)) AS RemainingBalance,
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments
+    FROM PaymentsDataset
+    WHERE DateOfService <= @AsOfDate
+),
+
+PriorPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments30
+    FROM PaymentsDataset
+    WHERE DateOfService <= @PriorAsOf
+)
+
+SELECT
+    @AsOfDate AS AsOfDate,
+
+    c.TotalPayments,
+    c.InsurancePayments,
+    c.PatientPayments,
+    c.Adjustments,
+    c.RemainingBalance,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.InsurancePayments / c.TotalPayments AS decimal(6,2)) 
+    END AS InsurancePctOfTotal,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.PatientPayments / c.TotalPayments AS decimal(6,2)) 
+    END AS PatientPctOfTotal,
+
+    p.TotalPayments30,
+
+    CASE WHEN p.TotalPayments30 IS NULL OR p.TotalPayments30 = 0 
+         THEN NULL
+         ELSE CAST(100.0 * (c.TotalPayments - p.TotalPayments30) 
+                   / p.TotalPayments30 AS decimal(6,2)) 
+    END AS PctChangeLast30Days
+FROM CurrentPayments c
+CROSS JOIN PriorPayments p;
+",,TrxAmt,Transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Total Payments,"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @AsOfDate date = @Today;
+DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate);
+
+WITH CurrentPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) AS InsurancePayments,
+        SUM(ISNULL(PatientCollections,0))   AS PatientPayments,
+        SUM(CASE WHEN TrxType = 'Adjustment' 
+                 THEN ISNULL(TrxAmt,0) ELSE 0 END) AS Adjustments,
+        SUM(ISNULL(Balance,0)) AS RemainingBalance,
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments
+    FROM PaymentsDataset
+    WHERE DateOfService <= @AsOfDate
+),
+
+PriorPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments30
+    FROM PaymentsDataset
+    WHERE DateOfService <= @PriorAsOf
+)
+
+SELECT
+    @AsOfDate AS AsOfDate,
+
+    c.TotalPayments,
+    c.InsurancePayments,
+    c.PatientPayments,
+    c.Adjustments,
+    c.RemainingBalance,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.InsurancePayments / c.TotalPayments AS decimal(6,2)) 
+    END AS InsurancePctOfTotal,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.PatientPayments / c.TotalPayments AS decimal(6,2)) 
+    END AS PatientPctOfTotal,
+
+    p.TotalPayments30,
+
+    CASE WHEN p.TotalPayments30 IS NULL OR p.TotalPayments30 = 0 
+         THEN NULL
+         ELSE CAST(100.0 * (c.TotalPayments - p.TotalPayments30) 
+                   / p.TotalPayments30 AS decimal(6,2)) 
+    END AS PctChangeLast30Days
+FROM CurrentPayments c
+CROSS JOIN PriorPayments p;
+",,InsuranceCollections,Transactions,InsuranceCollections,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Total Payments,"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @AsOfDate date = @Today;
+DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate);
+
+WITH CurrentPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) AS InsurancePayments,
+        SUM(ISNULL(PatientCollections,0))   AS PatientPayments,
+        SUM(CASE WHEN TrxType = 'Adjustment' 
+                 THEN ISNULL(TrxAmt,0) ELSE 0 END) AS Adjustments,
+        SUM(ISNULL(Balance,0)) AS RemainingBalance,
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments
+    FROM PaymentsDataset
+    WHERE DateOfService <= @AsOfDate
+),
+
+PriorPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments30
+    FROM PaymentsDataset
+    WHERE DateOfService <= @PriorAsOf
+)
+
+SELECT
+    @AsOfDate AS AsOfDate,
+
+    c.TotalPayments,
+    c.InsurancePayments,
+    c.PatientPayments,
+    c.Adjustments,
+    c.RemainingBalance,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.InsurancePayments / c.TotalPayments AS decimal(6,2)) 
+    END AS InsurancePctOfTotal,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.PatientPayments / c.TotalPayments AS decimal(6,2)) 
+    END AS PatientPctOfTotal,
+
+    p.TotalPayments30,
+
+    CASE WHEN p.TotalPayments30 IS NULL OR p.TotalPayments30 = 0 
+         THEN NULL
+         ELSE CAST(100.0 * (c.TotalPayments - p.TotalPayments30) 
+                   / p.TotalPayments30 AS decimal(6,2)) 
+    END AS PctChangeLast30Days
+FROM CurrentPayments c
+CROSS JOIN PriorPayments p;
+",,PatientCollections,Transactions,PatientCollections,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Total Payments,"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @AsOfDate date = @Today;
+DECLARE @PriorAsOf date = DATEADD(DAY, -30, @AsOfDate);
+
+WITH CurrentPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) AS InsurancePayments,
+        SUM(ISNULL(PatientCollections,0))   AS PatientPayments,
+        SUM(CASE WHEN TrxType = 'Adjustment' 
+                 THEN ISNULL(TrxAmt,0) ELSE 0 END) AS Adjustments,
+        SUM(ISNULL(Balance,0)) AS RemainingBalance,
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments
+    FROM PaymentsDataset
+    WHERE DateOfService <= @AsOfDate
+),
+
+PriorPayments AS
+(
+    SELECT
+        SUM(ISNULL(InsuranceCollections,0)) 
+            + SUM(ISNULL(PatientCollections,0)) AS TotalPayments30
+    FROM PaymentsDataset
+    WHERE DateOfService <= @PriorAsOf
+)
+
+SELECT
+    @AsOfDate AS AsOfDate,
+
+    c.TotalPayments,
+    c.InsurancePayments,
+    c.PatientPayments,
+    c.Adjustments,
+    c.RemainingBalance,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.InsurancePayments / c.TotalPayments AS decimal(6,2)) 
+    END AS InsurancePctOfTotal,
+
+    CASE WHEN c.TotalPayments = 0 
+         THEN NULL 
+         ELSE CAST(100.0 * c.PatientPayments / c.TotalPayments AS decimal(6,2)) 
+    END AS PatientPctOfTotal,
+
+    p.TotalPayments30,
+
+    CASE WHEN p.TotalPayments30 IS NULL OR p.TotalPayments30 = 0 
+         THEN NULL
+         ELSE CAST(100.0 * (c.TotalPayments - p.TotalPayments30) 
+                   / p.TotalPayments30 AS decimal(6,2)) 
+    END AS PctChangeLast30Days
+FROM CurrentPayments c
+CROSS JOIN PriorPayments p;
+",,Balance,Transactions,Balance,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Revenue Trends (Month over Month),"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @StartDate date = DATEADD(MONTH, -12, @Today);   -- Last 12 months
+
+WITH MonthlyAggregates AS
+(
+    SELECT
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1) AS RevenueMonth,
+
+        -- Charges
+        SUM(CASE WHEN TrxType = 'Charge'
+                 THEN ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Charges,
+
+        -- Payments (negative impact)
+        SUM(CASE WHEN TrxType = 'Payment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Payments,
+
+        -- Adjustments (negative impact)
+        SUM(CASE WHEN TrxType = 'Adjustment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Adjustments
+    FROM recon_report
+    WHERE DateOfService >= @StartDate
+      AND DateOfService <= @Today
+    GROUP BY
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1)
+)
+
+SELECT
+    RevenueMonth,
+    FORMAT(RevenueMonth, 'MMM yyyy') AS MonthLabel,
+    Charges,
+    Payments,
+    Adjustments
+FROM MonthlyAggregates
+ORDER BY RevenueMonth;",UserID,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Revenue Trends (Month over Month),"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @StartDate date = DATEADD(MONTH, -12, @Today);   -- Last 12 months
+
+WITH MonthlyAggregates AS
+(
+    SELECT
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1) AS RevenueMonth,
+
+        -- Charges
+        SUM(CASE WHEN TrxType = 'Charge'
+                 THEN ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Charges,
+
+        -- Payments (negative impact)
+        SUM(CASE WHEN TrxType = 'Payment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Payments,
+
+        -- Adjustments (negative impact)
+        SUM(CASE WHEN TrxType = 'Adjustment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Adjustments
+    FROM recon_report
+    WHERE DateOfService >= @StartDate
+      AND DateOfService <= @Today
+    GROUP BY
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1)
+)
+
+SELECT
+    RevenueMonth,
+    FORMAT(RevenueMonth, 'MMM yyyy') AS MonthLabel,
+    Charges,
+    Payments,
+    Adjustments
+FROM MonthlyAggregates
+ORDER BY RevenueMonth;",,TrxAmt,Transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Revenue Trends (Month over Month),"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @StartDate date = DATEADD(MONTH, -12, @Today);   -- Last 12 months
+
+WITH MonthlyAggregates AS
+(
+    SELECT
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1) AS RevenueMonth,
+
+        -- Charges
+        SUM(CASE WHEN TrxType = 'Charge'
+                 THEN ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Charges,
+
+        -- Payments (negative impact)
+        SUM(CASE WHEN TrxType = 'Payment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Payments,
+
+        -- Adjustments (negative impact)
+        SUM(CASE WHEN TrxType = 'Adjustment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Adjustments
+    FROM recon_report
+    WHERE DateOfService >= @StartDate
+      AND DateOfService <= @Today
+    GROUP BY
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1)
+)
+
+SELECT
+    RevenueMonth,
+    FORMAT(RevenueMonth, 'MMM yyyy') AS MonthLabel,
+    Charges,
+    Payments,
+    Adjustments
+FROM MonthlyAggregates
+ORDER BY RevenueMonth;",,TrxType,Transactions,TrxType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Revenue Trends (Year over Year),"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @StartDate date = DATEADD(MONTH, -12, @Today);   -- Last 12 months
+
+WITH MonthlyAggregates AS
+(
+    SELECT
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1) AS RevenueMonth,
+
+        -- Charges
+        SUM(CASE WHEN TrxType = 'Charge'
+                 THEN ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Charges,
+
+        -- Payments (negative impact)
+        SUM(CASE WHEN TrxType = 'Payment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Payments,
+
+        -- Adjustments (negative impact)
+        SUM(CASE WHEN TrxType = 'Adjustment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Adjustments
+    FROM recon_report
+    WHERE DateOfService >= @StartDate
+      AND DateOfService <= @Today
+    GROUP BY
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1)
+)
+
+SELECT
+    RevenueMonth,
+    Year(FORMAT(RevenueMonth, 'MMM yyyy')) AS YearLabel,
+    Charges,
+    Payments,
+    Adjustments
+FROM MonthlyAggregates
+ORDER BY RevenueMonth;",UserID,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Revenue Trends (Year over Year),"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @StartDate date = DATEADD(MONTH, -12, @Today);   -- Last 12 months
+
+WITH MonthlyAggregates AS
+(
+    SELECT
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1) AS RevenueMonth,
+
+        -- Charges
+        SUM(CASE WHEN TrxType = 'Charge'
+                 THEN ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Charges,
+
+        -- Payments (negative impact)
+        SUM(CASE WHEN TrxType = 'Payment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Payments,
+
+        -- Adjustments (negative impact)
+        SUM(CASE WHEN TrxType = 'Adjustment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Adjustments
+    FROM recon_report
+    WHERE DateOfService >= @StartDate
+      AND DateOfService <= @Today
+    GROUP BY
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1)
+)
+
+SELECT
+    RevenueMonth,
+    Year(FORMAT(RevenueMonth, 'MMM yyyy')) AS YearLabel,
+    Charges,
+    Payments,
+    Adjustments
+FROM MonthlyAggregates
+ORDER BY RevenueMonth;",,TrxAmt,Transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Revenue Trends (Year over Year),"DECLARE @Today date = CAST(GETDATE() AS date);
+DECLARE @StartDate date = DATEADD(MONTH, -12, @Today);   -- Last 12 months
+
+WITH MonthlyAggregates AS
+(
+    SELECT
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1) AS RevenueMonth,
+
+        -- Charges
+        SUM(CASE WHEN TrxType = 'Charge'
+                 THEN ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Charges,
+
+        -- Payments (negative impact)
+        SUM(CASE WHEN TrxType = 'Payment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Payments,
+
+        -- Adjustments (negative impact)
+        SUM(CASE WHEN TrxType = 'Adjustment'
+                 THEN -ISNULL(TrxAmt, 0)
+                 ELSE 0 END) AS Adjustments
+    FROM recon_report
+    WHERE DateOfService >= @StartDate
+      AND DateOfService <= @Today
+    GROUP BY
+        DATEFROMPARTS(YEAR(DateOfService), MONTH(DateOfService), 1)
+)
+
+SELECT
+    RevenueMonth,
+    Year(FORMAT(RevenueMonth, 'MMM yyyy')) AS YearLabel,
+    Charges,
+    Payments,
+    Adjustments
+FROM MonthlyAggregates
+ORDER BY RevenueMonth;",,TrxType,Transactions,TrxType,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,AR by Location,"SELECT
+    Location,
+    
+    -- Patient Collections
+    SUM(CASE WHEN PayerType = 'Patient' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS PatientCollections,
+
+    -- Insurance Collections
+    SUM(CASE WHEN PayerType = 'Insurance' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS InsuranceCollections,
+
+    -- AR Balance (charges – payments – adjustments)
+    SUM(
+        CASE 
+            WHEN TrxType = 'Charge'     THEN  ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Payment'    THEN -ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0)
+            ELSE 0
+        END
+    ) AS ARBalance
+
+FROM recon_report
+GROUP BY Location
+ORDER BY Location;",,ManagerName,Users,ManagerName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,AR by Location,"SELECT
+    Location,
+    
+    -- Patient Collections
+    SUM(CASE WHEN PayerType = 'Patient' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS PatientCollections,
+
+    -- Insurance Collections
+    SUM(CASE WHEN PayerType = 'Insurance' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS InsuranceCollections,
+
+    -- AR Balance (charges – payments – adjustments)
+    SUM(
+        CASE 
+            WHEN TrxType = 'Charge'     THEN  ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Payment'    THEN -ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0)
+            ELSE 0
+        END
+    ) AS ARBalance
+
+FROM recon_report
+GROUP BY Location
+ORDER BY Location;",Location,Location,Pracitce,Location,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,AR by Location,"SELECT
+    Location,
+    
+    -- Patient Collections
+    SUM(CASE WHEN PayerType = 'Patient' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS PatientCollections,
+
+    -- Insurance Collections
+    SUM(CASE WHEN PayerType = 'Insurance' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS InsuranceCollections,
+
+    -- AR Balance (charges – payments – adjustments)
+    SUM(
+        CASE 
+            WHEN TrxType = 'Charge'     THEN  ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Payment'    THEN -ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0)
+            ELSE 0
+        END
+    ) AS ARBalance
+
+FROM recon_report
+GROUP BY Location
+ORDER BY Location;",PatientCollections,PatientCollections,Payer,PatientCollections,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,AR by Location,"SELECT
+    Location,
+    
+    -- Patient Collections
+    SUM(CASE WHEN PayerType = 'Patient' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS PatientCollections,
+
+    -- Insurance Collections
+    SUM(CASE WHEN PayerType = 'Insurance' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS InsuranceCollections,
+
+    -- AR Balance (charges – payments – adjustments)
+    SUM(
+        CASE 
+            WHEN TrxType = 'Charge'     THEN  ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Payment'    THEN -ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0)
+            ELSE 0
+        END
+    ) AS ARBalance
+
+FROM recon_report
+GROUP BY Location
+ORDER BY Location;",InsuranceCollections,InsuranceCollections,Payer,InsuranceCollections,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,AR by Location,"SELECT
+    Location,
+    
+    -- Patient Collections
+    SUM(CASE WHEN PayerType = 'Patient' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS PatientCollections,
+
+    -- Insurance Collections
+    SUM(CASE WHEN PayerType = 'Insurance' 
+             THEN ISNULL(TrxAmt, 0) 
+             ELSE 0 
+        END) AS InsuranceCollections,
+
+    -- AR Balance (charges – payments – adjustments)
+    SUM(
+        CASE 
+            WHEN TrxType = 'Charge'     THEN  ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Payment'    THEN -ISNULL(TrxAmt, 0)
+            WHEN TrxType = 'Adjustment' THEN -ISNULL(TrxAmt, 0)
+            ELSE 0
+        END
+    ) AS ARBalance
+
+FROM recon_report
+GROUP BY Location
+ORDER BY Location;",AR Balance,TrxAmt,transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Staff Performance,"DECLARE @StartDate DATE = DATEADD(DAY, -30, CAST(GETDATE() AS DATE));   -- Last 30 days
+DECLARE @EndDate   DATE = CAST(GETDATE() AS DATE);
+
+WITH WorkingDays AS (
+    SELECT COUNT(*) AS DaysWorked
+    FROM CalendarTable          -- must contain working/business days
+    WHERE CalDate BETWEEN @StartDate AND @EndDate
+      AND IsBusinessDay = 1
+),
+
+ClaimActivity AS (
+    SELECT
+        UserName,
+        ManagerName,
+        SUM(CASE WHEN TrxType = 'Charge'     THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalCharges,
+        SUM(CASE WHEN TrxType = 'Payment'    THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalPayments,
+
+        -- Avg time per claim (from workflow table)
+        AVG(ISNULL(MinutesToResolve,0)) AS AvgMinutesPerClaim,
+
+        COUNT(DISTINCT ClaimID) AS ClaimsWorked
+    FROM recon_report r
+        LEFT JOIN ClaimWorkflow w ON r.ClaimID = w.ClaimID
+    WHERE UserType = 'AR Specialist'
+      AND r.DateOfService BETWEEN @StartDate AND @EndDate
+    GROUP BY UserName
+),
+
+ClaimQueueToday AS (
+    SELECT
+        UserName,
+        COUNT(*) AS ClaimsInQueueToday
+    FROM ClaimQueue
+    WHERE IsOpen = 1
+    GROUP BY UserName
+)
+
+SELECT
+    a.UserName AS Name,
+
+    -- Net Collection %
+    CASE WHEN a.TotalCharges = 0 THEN NULL
+         ELSE CAST(100.0 * a.TotalPayments / a.TotalCharges AS DECIMAL(5,2))
+    END AS NetCollectionPct,
+
+    -- Recovery per Day
+    CAST(a.TotalPayments / d.DaysWorked AS DECIMAL(12,2)) AS RecoveryPerDay,
+
+    -- Avg Time per Claim (in minutes)
+    CONCAT(CAST(a.AvgMinutesPerClaim AS INT), ' minutes') AS AvgTimePerClaim,
+
+    -- Claims per Day
+    CAST(a.ClaimsWorked / d.DaysWorked AS INT) AS ClaimsPerDay,
+
+    q.ClaimsInQueueToday
+
+FROM ClaimActivity a
+CROSS JOIN WorkingDays d
+LEFT JOIN ClaimQueueToday q
+    ON a.UserName = q.UserName
+ORDER BY Name;
+",,TrxAmt,transactions,TrxAmt,"float(10,2)",,,,,
+DenialIQ,Manager Landing Page,Staff Performance,"DECLARE @StartDate DATE = DATEADD(DAY, -30, CAST(GETDATE() AS DATE));   -- Last 30 days
+DECLARE @EndDate   DATE = CAST(GETDATE() AS DATE);
+
+WITH WorkingDays AS (
+    SELECT COUNT(*) AS DaysWorked
+    FROM CalendarTable          -- must contain working/business days
+    WHERE CalDate BETWEEN @StartDate AND @EndDate
+      AND IsBusinessDay = 1
+),
+
+ClaimActivity AS (
+    SELECT
+        UserName,
+        ManagerName,
+        SUM(CASE WHEN TrxType = 'Charge'     THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalCharges,
+        SUM(CASE WHEN TrxType = 'Payment'    THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalPayments,
+
+        -- Avg time per claim (from workflow table)
+        AVG(ISNULL(MinutesToResolve,0)) AS AvgMinutesPerClaim,
+
+        COUNT(DISTINCT ClaimID) AS ClaimsWorked
+    FROM recon_report r
+        LEFT JOIN ClaimWorkflow w ON r.ClaimID = w.ClaimID
+    WHERE UserType = 'AR Specialist'
+      AND r.DateOfService BETWEEN @StartDate AND @EndDate
+    GROUP BY UserName
+),
+
+ClaimQueueToday AS (
+    SELECT
+        UserName,
+        COUNT(*) AS ClaimsInQueueToday
+    FROM ClaimQueue
+    WHERE IsOpen = 1
+    GROUP BY UserName
+)
+
+SELECT
+    a.UserName AS Name,
+
+    -- Net Collection %
+    CASE WHEN a.TotalCharges = 0 THEN NULL
+         ELSE CAST(100.0 * a.TotalPayments / a.TotalCharges AS DECIMAL(5,2))
+    END AS NetCollectionPct,
+
+    -- Recovery per Day
+    CAST(a.TotalPayments / d.DaysWorked AS DECIMAL(12,2)) AS RecoveryPerDay,
+
+    -- Avg Time per Claim (in minutes)
+    CONCAT(CAST(a.AvgMinutesPerClaim AS INT), ' minutes') AS AvgTimePerClaim,
+
+    -- Claims per Day
+    CAST(a.ClaimsWorked / d.DaysWorked AS INT) AS ClaimsPerDay,
+
+    q.ClaimsInQueueToday
+
+FROM ClaimActivity a
+CROSS JOIN WorkingDays d
+LEFT JOIN ClaimQueueToday q
+    ON a.UserName = q.UserName
+ORDER BY Name;
+",,claimID,claims,claimID,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Staff Performance,"DECLARE @StartDate DATE = DATEADD(DAY, -30, CAST(GETDATE() AS DATE));   -- Last 30 days
+DECLARE @EndDate   DATE = CAST(GETDATE() AS DATE);
+
+WITH WorkingDays AS (
+    SELECT COUNT(*) AS DaysWorked
+    FROM CalendarTable          -- must contain working/business days
+    WHERE CalDate BETWEEN @StartDate AND @EndDate
+      AND IsBusinessDay = 1
+),
+
+ClaimActivity AS (
+    SELECT
+        UserName,
+        ManagerName,
+        SUM(CASE WHEN TrxType = 'Charge'     THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalCharges,
+        SUM(CASE WHEN TrxType = 'Payment'    THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalPayments,
+
+        -- Avg time per claim (from workflow table)
+        AVG(ISNULL(MinutesToResolve,0)) AS AvgMinutesPerClaim,
+
+        COUNT(DISTINCT ClaimID) AS ClaimsWorked
+    FROM recon_report r
+        LEFT JOIN ClaimWorkflow w ON r.ClaimID = w.ClaimID
+    WHERE UserType = 'AR Specialist'
+      AND r.DateOfService BETWEEN @StartDate AND @EndDate
+    GROUP BY UserName
+),
+
+ClaimQueueToday AS (
+    SELECT
+        UserName,
+        COUNT(*) AS ClaimsInQueueToday
+    FROM ClaimQueue
+    WHERE IsOpen = 1
+    GROUP BY UserName
+)
+
+SELECT
+    a.UserName AS Name,
+
+    -- Net Collection %
+    CASE WHEN a.TotalCharges = 0 THEN NULL
+         ELSE CAST(100.0 * a.TotalPayments / a.TotalCharges AS DECIMAL(5,2))
+    END AS NetCollectionPct,
+
+    -- Recovery per Day
+    CAST(a.TotalPayments / d.DaysWorked AS DECIMAL(12,2)) AS RecoveryPerDay,
+
+    -- Avg Time per Claim (in minutes)
+    CONCAT(CAST(a.AvgMinutesPerClaim AS INT), ' minutes') AS AvgTimePerClaim,
+
+    -- Claims per Day
+    CAST(a.ClaimsWorked / d.DaysWorked AS INT) AS ClaimsPerDay,
+
+    q.ClaimsInQueueToday
+
+FROM ClaimActivity a
+CROSS JOIN WorkingDays d
+LEFT JOIN ClaimQueueToday q
+    ON a.UserName = q.UserName
+ORDER BY Name;
+",UserName,UserName,Users,UserName,VARCHAR,,,,,
+DenialIQ,Manager Landing Page,Staff Performance,"DECLARE @StartDate DATE = DATEADD(DAY, -30, CAST(GETDATE() AS DATE));   -- Last 30 days
+DECLARE @EndDate   DATE = CAST(GETDATE() AS DATE);
+
+WITH WorkingDays AS (
+    SELECT COUNT(*) AS DaysWorked
+    FROM CalendarTable          -- must contain working/business days
+    WHERE CalDate BETWEEN @StartDate AND @EndDate
+      AND IsBusinessDay = 1
+),
+
+ClaimActivity AS (
+    SELECT
+        UserName,
+        ManagerName,
+        SUM(CASE WHEN TrxType = 'Charge'     THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalCharges,
+        SUM(CASE WHEN TrxType = 'Payment'    THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalPayments,
+
+        -- Avg time per claim (from workflow table)
+        AVG(ISNULL(MinutesToResolve,0)) AS AvgMinutesPerClaim,
+
+        COUNT(DISTINCT ClaimID) AS ClaimsWorked
+    FROM recon_report r
+        LEFT JOIN ClaimWorkflow w ON r.ClaimID = w.ClaimID
+    WHERE UserType = 'AR Specialist'
+      AND r.DateOfService BETWEEN @StartDate AND @EndDate
+    GROUP BY UserName
+),
+
+ClaimQueueToday AS (
+    SELECT
+        UserName,
+        COUNT(*) AS ClaimsInQueueToday
+    FROM ClaimQueue
+    WHERE IsOpen = 1
+    GROUP BY UserName
+)
+
+SELECT
+    a.UserName AS Name,
+
+    -- Net Collection %
+    CASE WHEN a.TotalCharges = 0 THEN NULL
+         ELSE CAST(100.0 * a.TotalPayments / a.TotalCharges AS DECIMAL(5,2))
+    END AS NetCollectionPct,
+
+    -- Recovery per Day
+    CAST(a.TotalPayments / d.DaysWorked AS DECIMAL(12,2)) AS RecoveryPerDay,
+
+    -- Avg Time per Claim (in minutes)
+    CONCAT(CAST(a.AvgMinutesPerClaim AS INT), ' minutes') AS AvgTimePerClaim,
+
+    -- Claims per Day
+    CAST(a.ClaimsWorked / d.DaysWorked AS INT) AS ClaimsPerDay,
+
+    q.ClaimsInQueueToday
+
+FROM ClaimActivity a
+CROSS JOIN WorkingDays d
+LEFT JOIN ClaimQueueToday q
+    ON a.UserName = q.UserName
+ORDER BY Name;
+",Net Collection %,Net Collection %,,Net Collection %,,,,,,
+DenialIQ,Manager Landing Page,Staff Performance,"DECLARE @StartDate DATE = DATEADD(DAY, -30, CAST(GETDATE() AS DATE));   -- Last 30 days
+DECLARE @EndDate   DATE = CAST(GETDATE() AS DATE);
+
+WITH WorkingDays AS (
+    SELECT COUNT(*) AS DaysWorked
+    FROM CalendarTable          -- must contain working/business days
+    WHERE CalDate BETWEEN @StartDate AND @EndDate
+      AND IsBusinessDay = 1
+),
+
+ClaimActivity AS (
+    SELECT
+        UserName,
+        ManagerName,
+        SUM(CASE WHEN TrxType = 'Charge'     THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalCharges,
+        SUM(CASE WHEN TrxType = 'Payment'    THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalPayments,
+
+        -- Avg time per claim (from workflow table)
+        AVG(ISNULL(MinutesToResolve,0)) AS AvgMinutesPerClaim,
+
+        COUNT(DISTINCT ClaimID) AS ClaimsWorked
+    FROM recon_report r
+        LEFT JOIN ClaimWorkflow w ON r.ClaimID = w.ClaimID
+    WHERE UserType = 'AR Specialist'
+      AND r.DateOfService BETWEEN @StartDate AND @EndDate
+    GROUP BY UserName
+),
+
+ClaimQueueToday AS (
+    SELECT
+        UserName,
+        COUNT(*) AS ClaimsInQueueToday
+    FROM ClaimQueue
+    WHERE IsOpen = 1
+    GROUP BY UserName
+)
+
+SELECT
+    a.UserName AS Name,
+
+    -- Net Collection %
+    CASE WHEN a.TotalCharges = 0 THEN NULL
+         ELSE CAST(100.0 * a.TotalPayments / a.TotalCharges AS DECIMAL(5,2))
+    END AS NetCollectionPct,
+
+    -- Recovery per Day
+    CAST(a.TotalPayments / d.DaysWorked AS DECIMAL(12,2)) AS RecoveryPerDay,
+
+    -- Avg Time per Claim (in minutes)
+    CONCAT(CAST(a.AvgMinutesPerClaim AS INT), ' minutes') AS AvgTimePerClaim,
+
+    -- Claims per Day
+    CAST(a.ClaimsWorked / d.DaysWorked AS INT) AS ClaimsPerDay,
+
+    q.ClaimsInQueueToday
+
+FROM ClaimActivity a
+CROSS JOIN WorkingDays d
+LEFT JOIN ClaimQueueToday q
+    ON a.UserName = q.UserName
+ORDER BY Name;
+",Recovery Per Day,Recovery Per Day,Users,Recovery Per Day,,,,,,
+DenialIQ,Manager Landing Page,Staff Performance,"DECLARE @StartDate DATE = DATEADD(DAY, -30, CAST(GETDATE() AS DATE));   -- Last 30 days
+DECLARE @EndDate   DATE = CAST(GETDATE() AS DATE);
+
+WITH WorkingDays AS (
+    SELECT COUNT(*) AS DaysWorked
+    FROM CalendarTable          -- must contain working/business days
+    WHERE CalDate BETWEEN @StartDate AND @EndDate
+      AND IsBusinessDay = 1
+),
+
+ClaimActivity AS (
+    SELECT
+        UserName,
+        ManagerName,
+        SUM(CASE WHEN TrxType = 'Charge'     THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalCharges,
+        SUM(CASE WHEN TrxType = 'Payment'    THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalPayments,
+
+        -- Avg time per claim (from workflow table)
+        AVG(ISNULL(MinutesToResolve,0)) AS AvgMinutesPerClaim,
+
+        COUNT(DISTINCT ClaimID) AS ClaimsWorked
+    FROM recon_report r
+        LEFT JOIN ClaimWorkflow w ON r.ClaimID = w.ClaimID
+    WHERE UserType = 'AR Specialist'
+      AND r.DateOfService BETWEEN @StartDate AND @EndDate
+    GROUP BY UserName
+),
+
+ClaimQueueToday AS (
+    SELECT
+        UserName,
+        COUNT(*) AS ClaimsInQueueToday
+    FROM ClaimQueue
+    WHERE IsOpen = 1
+    GROUP BY UserName
+)
+
+SELECT
+    a.UserName AS Name,
+
+    -- Net Collection %
+    CASE WHEN a.TotalCharges = 0 THEN NULL
+         ELSE CAST(100.0 * a.TotalPayments / a.TotalCharges AS DECIMAL(5,2))
+    END AS NetCollectionPct,
+
+    -- Recovery per Day
+    CAST(a.TotalPayments / d.DaysWorked AS DECIMAL(12,2)) AS RecoveryPerDay,
+
+    -- Avg Time per Claim (in minutes)
+    CONCAT(CAST(a.AvgMinutesPerClaim AS INT), ' minutes') AS AvgTimePerClaim,
+
+    -- Claims per Day
+    CAST(a.ClaimsWorked / d.DaysWorked AS INT) AS ClaimsPerDay,
+
+    q.ClaimsInQueueToday
+
+FROM ClaimActivity a
+CROSS JOIN WorkingDays d
+LEFT JOIN ClaimQueueToday q
+    ON a.UserName = q.UserName
+ORDER BY Name;
+",Avg. Time Per Claim,Avg. Time Per Claim,Users,Avg. Time Per Claim,"float(3,2)",,,,,
+DenialIQ,Manager Landing Page,Staff Performance,"DECLARE @StartDate DATE = DATEADD(DAY, -30, CAST(GETDATE() AS DATE));   -- Last 30 days
+DECLARE @EndDate   DATE = CAST(GETDATE() AS DATE);
+
+WITH WorkingDays AS (
+    SELECT COUNT(*) AS DaysWorked
+    FROM CalendarTable          -- must contain working/business days
+    WHERE CalDate BETWEEN @StartDate AND @EndDate
+      AND IsBusinessDay = 1
+),
+
+ClaimActivity AS (
+    SELECT
+        UserName,
+        ManagerName,
+        SUM(CASE WHEN TrxType = 'Charge'     THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalCharges,
+        SUM(CASE WHEN TrxType = 'Payment'    THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalPayments,
+
+        -- Avg time per claim (from workflow table)
+        AVG(ISNULL(MinutesToResolve,0)) AS AvgMinutesPerClaim,
+
+        COUNT(DISTINCT ClaimID) AS ClaimsWorked
+    FROM recon_report r
+        LEFT JOIN ClaimWorkflow w ON r.ClaimID = w.ClaimID
+    WHERE UserType = 'AR Specialist'
+      AND r.DateOfService BETWEEN @StartDate AND @EndDate
+    GROUP BY UserName
+),
+
+ClaimQueueToday AS (
+    SELECT
+        UserName,
+        COUNT(*) AS ClaimsInQueueToday
+    FROM ClaimQueue
+    WHERE IsOpen = 1
+    GROUP BY UserName
+)
+
+SELECT
+    a.UserName AS Name,
+
+    -- Net Collection %
+    CASE WHEN a.TotalCharges = 0 THEN NULL
+         ELSE CAST(100.0 * a.TotalPayments / a.TotalCharges AS DECIMAL(5,2))
+    END AS NetCollectionPct,
+
+    -- Recovery per Day
+    CAST(a.TotalPayments / d.DaysWorked AS DECIMAL(12,2)) AS RecoveryPerDay,
+
+    -- Avg Time per Claim (in minutes)
+    CONCAT(CAST(a.AvgMinutesPerClaim AS INT), ' minutes') AS AvgTimePerClaim,
+
+    -- Claims per Day
+    CAST(a.ClaimsWorked / d.DaysWorked AS INT) AS ClaimsPerDay,
+
+    q.ClaimsInQueueToday
+
+FROM ClaimActivity a
+CROSS JOIN WorkingDays d
+LEFT JOIN ClaimQueueToday q
+    ON a.UserName = q.UserName
+ORDER BY Name;
+",,ClaimsPerDay,,ClaimsPerDay,INT,,,,,
+DenialIQ,Manager Landing Page,Staff Performance,"DECLARE @StartDate DATE = DATEADD(DAY, -30, CAST(GETDATE() AS DATE));   -- Last 30 days
+DECLARE @EndDate   DATE = CAST(GETDATE() AS DATE);
+
+WITH WorkingDays AS (
+    SELECT COUNT(*) AS DaysWorked
+    FROM CalendarTable          -- must contain working/business days
+    WHERE CalDate BETWEEN @StartDate AND @EndDate
+      AND IsBusinessDay = 1
+),
+
+ClaimActivity AS (
+    SELECT
+        UserName,
+        ManagerName,
+        SUM(CASE WHEN TrxType = 'Charge'     THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalCharges,
+        SUM(CASE WHEN TrxType = 'Payment'    THEN ISNULL(TrxAmt,0) ELSE 0 END) AS TotalPayments,
+
+        -- Avg time per claim (from workflow table)
+        AVG(ISNULL(MinutesToResolve,0)) AS AvgMinutesPerClaim,
+
+        COUNT(DISTINCT ClaimID) AS ClaimsWorked
+    FROM recon_report r
+        LEFT JOIN ClaimWorkflow w ON r.ClaimID = w.ClaimID
+    WHERE UserType = 'AR Specialist'
+      AND r.DateOfService BETWEEN @StartDate AND @EndDate
+    GROUP BY UserName
+),
+
+ClaimQueueToday AS (
+    SELECT
+        UserName,
+        COUNT(*) AS ClaimsInQueueToday
+    FROM ClaimQueue
+    WHERE IsOpen = 1
+    GROUP BY UserName
+)
+
+SELECT
+    a.UserName AS Name,
+
+    -- Net Collection %
+    CASE WHEN a.TotalCharges = 0 THEN NULL
+         ELSE CAST(100.0 * a.TotalPayments / a.TotalCharges AS DECIMAL(5,2))
+    END AS NetCollectionPct,
+
+    -- Recovery per Day
+    CAST(a.TotalPayments / d.DaysWorked AS DECIMAL(12,2)) AS RecoveryPerDay,
+
+    -- Avg Time per Claim (in minutes)
+    CONCAT(CAST(a.AvgMinutesPerClaim AS INT), ' minutes') AS AvgTimePerClaim,
+
+    -- Claims per Day
+    CAST(a.ClaimsWorked / d.DaysWorked AS INT) AS ClaimsPerDay,
+
+    q.ClaimsInQueueToday
+
+FROM ClaimActivity a
+CROSS JOIN WorkingDays d
+LEFT JOIN ClaimQueueToday q
+    ON a.UserName = q.UserName
+ORDER BY Name;
+",,ClaimsInQueue,,ClaimsInQueue,INT,,,,,

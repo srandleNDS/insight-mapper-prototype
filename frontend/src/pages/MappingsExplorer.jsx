@@ -8,17 +8,32 @@ export default function MappingsExplorer() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grouped');
   const [expandedRows, setExpandedRows] = useState({});
+  const [expandedData, setExpandedData] = useState({});
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const { filters } = useFilters() || { filters: { tabName: [], filterContext: [], sourceType: [], incompleteOnly: false } };
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page, filters.incompleteOnly]);
 
   const fetchData = async () => {
     try {
-      const res = await fetch('/api/insight/all');
+      setLoading(true);
+      const searchQuery = searchParams.get('search') || '';
+      const params = new URLSearchParams({
+        page: page.toString(),
+        per_page: '50',
+        incomplete_only: filters.incompleteOnly.toString()
+      });
+      if (searchQuery) params.set('search', searchQuery);
+      
+      const res = await fetch(`/api/insight/list?${params}`);
       const json = await res.json();
-      setData(json);
+      setData(json.data || []);
+      setTotalPages(json.totalPages || 1);
+      setTotal(json.total || 0);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -26,33 +41,33 @@ export default function MappingsExplorer() {
     }
   };
 
-  const toggleExpand = (id) => {
-    setExpandedRows(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
+  const fetchExpandedData = async (insightId) => {
+    if (expandedData[insightId]) return;
+    try {
+      const res = await fetch(`/api/insight/${insightId}`);
+      const json = await res.json();
+      setExpandedData(prev => ({ ...prev, [insightId]: json }));
+    } catch (err) {
+      console.error('Error fetching expanded data:', err);
+    }
   };
 
-  const searchQuery = searchParams.get('search')?.toLowerCase() || '';
-  
-  let filteredData = data;
+  const toggleExpand = (id) => {
+    const newState = !expandedRows[id];
+    setExpandedRows(prev => ({
+      ...prev,
+      [id]: newState
+    }));
+    if (newState) {
+      fetchExpandedData(id);
+    }
+  };
 
-  if (searchQuery) {
-    filteredData = filteredData.filter(d => 
-      d.insightName?.toLowerCase().includes(searchQuery) ||
-      d.dataPoints?.some(dp => dp.name?.toLowerCase().includes(searchQuery))
-    );
-  }
+  let filteredData = data;
 
   if (filters.tabName.length > 0) {
     filteredData = filteredData.filter(d => 
-      d.productsUsedIn?.some(p => filters.tabName.includes(p))
-    );
-  }
-
-  if (filters.incompleteOnly) {
-    filteredData = filteredData.filter(d => 
-      d.dataPoints?.some(dp => !dp.sourceMapping?.some(m => !m.isUnmapped))
+      filters.tabName.includes(d.tabName)
     );
   }
 
@@ -103,12 +118,11 @@ export default function MappingsExplorer() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filteredData.map((insight) => {
-              const fieldCount = insight.dataPoints?.length || 0;
-              const unmappedCount = insight.dataPoints?.filter(dp => 
-                !dp.sourceMapping?.some(m => !m.isUnmapped)
-              ).length || 0;
+              const fieldCount = insight.totalFields || 0;
+              const unmappedCount = insight.unmappedFields || 0;
               const isExpanded = expandedRows[insight.id];
-              const tabName = insight.productsUsedIn?.[0] || 'General';
+              const tabName = insight.tabName || 'General';
+              const insightDetail = expandedData[insight.id];
 
               return (
                 <React.Fragment key={insight.id}>
@@ -169,8 +183,13 @@ export default function MappingsExplorer() {
                       <td colSpan={6} className="px-6 py-4">
                         <div className="ml-8 space-y-2">
                           <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Data Points</div>
+                          {!insightDetail ? (
+                            <div className="flex items-center justify-center py-4">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#18A69B]"></div>
+                            </div>
+                          ) : (
                           <div className="grid gap-2">
-                            {insight.dataPoints?.map((dp, dpIdx) => {
+                            {insightDetail.dataPoints?.map((dp, dpIdx) => {
                               const mapping = dp.sourceMapping?.[0];
                               const isUnmapped = mapping?.isUnmapped;
                               return (
@@ -198,6 +217,7 @@ export default function MappingsExplorer() {
                               );
                             })}
                           </div>
+                          )}
                         </div>
                       </td>
                     </tr>

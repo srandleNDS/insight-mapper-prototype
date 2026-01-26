@@ -17,27 +17,22 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await fetch('/api/insight/all');
-      const data = await res.json();
+      const [statsRes, listRes] = await Promise.all([
+        fetch('/api/stats'),
+        fetch('/api/insight/list?per_page=5')
+      ]);
       
-      let totalFields = 0;
-      let unmapped = 0;
-      
-      data.forEach(insight => {
-        insight.dataPoints?.forEach(dp => {
-          totalFields++;
-          const hasSource = dp.sourceMapping?.some(m => !m.isUnmapped);
-          if (!hasSource) unmapped++;
-        });
-      });
+      const statsData = await statsRes.json();
+      const listData = await listRes.json();
 
       setStats({
-        totalVisualizations: data.length,
-        totalFields,
-        mappedFields: totalFields - unmapped,
-        unmappedFields: unmapped
+        totalVisualizations: statsData.totalVisualizations,
+        totalFields: statsData.totalFields,
+        mappedFields: statsData.mappedFields,
+        unmappedFields: statsData.unmappedFields,
+        sourceSystems: statsData.sourceSystems
       });
-      setRecentViz(data.slice(0, 5));
+      setRecentViz(listData.data || []);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -96,15 +91,16 @@ export default function Dashboard() {
           <div className="space-y-3">
             {recentViz.map((viz, idx) => (
               <Link 
-                key={idx}
-                to={`/visualization/${viz.id || idx}`}
+                key={viz.id || idx}
+                to={`/visualization/${viz.id}`}
                 className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-[#18A69B]"></div>
+                  <div className={`w-2 h-2 rounded-full ${viz.unmappedFields > 0 ? 'bg-orange-400' : 'bg-[#18A69B]'}`}></div>
                   <span className="font-medium text-gray-800 group-hover:text-[#18A69B]">{viz.insightName}</span>
+                  <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500">{viz.tabName || 'General'}</span>
                 </div>
-                <span className="text-xs text-gray-400">{viz.dataPoints?.length || 0} fields</span>
+                <span className="text-xs text-gray-400">{viz.totalFields || 0} fields</span>
               </Link>
             ))}
           </div>

@@ -1,7 +1,7 @@
 # Insight Mapper
 
 ## Overview
-A full-stack application for searching and exploring data insights with their data points and source mappings. Features a multi-page React frontend with Dashboard, Mappings Explorer, Visualization Detail, and Audit pages. Connected to Flask backend and PostgreSQL.
+A full-stack application for searching and exploring data insights with their data points and source mappings. Features a multi-page React frontend with Dashboard, Mappings Explorer, Visualization Detail, and Audit pages. Connected to Flask backend and PostgreSQL. Populated with data from 10 data dictionary CSV files representing different healthcare systems.
 
 ## Project Structure
 ```
@@ -22,14 +22,25 @@ A full-stack application for searching and exploring data insights with their da
   /public
     index.html        - HTML template with Tailwind CDN
 /data                 - Data scripts
-  /seed_data.py       - Database seeding script
-  /automated_mapper.py - Fuzzy matching mapper
+  /load_csv_data.py   - CSV data loader for 10 data dictionaries
+/attached_assets      - Data dictionary CSV files
 ```
 
 ## Tech Stack
 - **Frontend**: React 18, React Router, Tailwind CSS (CDN)
 - **Backend**: Flask, Flask-SQLAlchemy, Flask-CORS
 - **Database**: PostgreSQL
+
+## Data Sources
+The application uses 10 data dictionary CSV files:
+- WebPT, WinOMS, WSC, DenialIQ, Dentrix, DSN, HCHB, PrimaryCare-Aprima, PrimaryCare-Ethizo, Waystar
+
+Current database statistics:
+- 1,043 visualizations
+- 5,879 data points (fields)
+- 5,777 mapped fields
+- 102 unmapped fields
+- 20,541 source mappings
 
 ## Color Palette
 - Primary: #18A69B (teal)
@@ -43,26 +54,27 @@ A full-stack application for searching and exploring data insights with their da
 
 ## Pages
 1. **Dashboard** (`/`) - Overview with stats, recent visualizations, quick actions
-2. **Mappings Explorer** (`/explorer`) - Grouped table view with filters
+2. **Mappings Explorer** (`/explorer`) - Paginated table view with filters
 3. **Visualization Detail** (`/visualization/:id`) - Tabs: Overview, Fields, Lineage, Calculations
 4. **Audit & Changes** (`/audit`) - Track mapping changes and data lineage updates
 
 ## API Endpoints
-- `GET /api/insights` - List all insight names
-- `GET /api/insight/search?q=<query>` - Search for specific insight
-- `GET /api/insight/all` - Get all insights with full data
+- `GET /api/stats` - Get aggregate statistics
+- `GET /api/insight/list` - Paginated list of insights (supports ?page, ?per_page, ?search, ?incomplete_only)
+- `GET /api/insight/<id>` - Get single insight with full data points
+- `GET /api/insight/all` - Get all insights with full data (large response)
+- `GET /api/tabs` - List distinct tab names
 
 ## Database Models
-- **Insight**: insight_name, calculation, products_used_in
-- **DataPoint**: name, calculation
-- **SourceMapping**: source_system, source_name, table, field, data_type
+- **Insight**: id, insight_name, tab_name, calculation, products_used_in, product
+- **DataPoint**: id, insight_id, name, ent_table, ent_field, ent_type, calculation
+- **SourceMapping**: id, data_point_id, source_system, source_name, table, field, data_type, source_type, dd_table, dd_field, dd_type
 
 ## Environment Variables
 - `DATABASE_URL` - PostgreSQL connection string (auto-configured by Replit)
 
 ## Recent Changes
-- Rebuilt entire UI to match wireframe with multi-page React Router app
-- Added global layout with Top Nav, Left Sidebar Filters, Main Content
-- Created Dashboard, Mappings Explorer, Visualization Detail, Audit pages
-- Integrated Tailwind CSS via CDN
-- Added filter checkboxes for Tab Name, Filter Context, Source Type
+- Loaded data from 10 data dictionary CSV files (WebPT, WinOMS, WSC, DenialIQ, Dentrix, DSN, HCHB, PrimaryCare-Aprima, PrimaryCare-Ethizo, Waystar)
+- Added optimized paginated API endpoints for performance
+- Updated database models to store enterprise and data dictionary field information
+- Frontend now uses efficient lazy-loading for visualization details
