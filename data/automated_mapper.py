@@ -18,13 +18,20 @@ def map_data_sources(mapping_file_path, external_data_path=None):
         print(f"Error: File {mapping_file_path} not found.")
         return
 
-    df = pd.read_csv(mapping_file_path).fillna("")
+    # Handle both CSV and Excel for the primary mapping file
+    if mapping_file_path.endswith('.xlsx'):
+        df = pd.read_excel(mapping_file_path).fillna("")
+    else:
+        df = pd.read_csv(mapping_file_path).fillna("")
     
     external_df = None
     if external_data_path and os.path.exists(external_data_path):
         try:
             # Handle possible encoding issues with external CSV
-            external_df = pd.read_csv(external_data_path, encoding='utf-8-sig').fillna("")
+            if external_data_path.endswith('.xlsx'):
+                external_df = pd.read_excel(external_data_path).fillna("")
+            else:
+                external_df = pd.read_csv(external_data_path, encoding='utf-8-sig').fillna("")
             print(f"Loaded external data source with {len(external_df)} records.")
         except Exception as e:
             print(f"Warning: Could not load external data: {e}")
@@ -137,14 +144,18 @@ def suggest_mappings(source_columns, target_data_points):
     return suggestions
 
 if __name__ == "__main__":
-    # Path to the primary mapping file
-    mapping_file = "data/insight_mapping.csv"
+    # Path to the primary mapping file (Now checking for the Excel dictionary)
+    mapping_file = "attached_assets/data_dictionary_ascendgp_1769446647983.xlsx"
     
-    # Path to the external source data list (attached file)
+    if not os.path.exists(mapping_file):
+        # Fallback to the original CSV if Excel isn't found
+        mapping_file = "data/insight_mapping.csv"
+    
+    # Path to the external source data list
     external_file = "attached_assets/ascendgp_full_data_list_1769446346238.csv"
     
     if not os.path.exists(external_file):
-        # Fallback for testing if asset is moved
         external_file = None
         
+    print(f"Starting mapping process using: {mapping_file}")
     map_data_sources(mapping_file, external_file)
