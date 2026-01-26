@@ -32,18 +32,33 @@ def search_insight():
     data_points = []
     for dp in insight.data_points:
         source_mappings = []
-        for sm in dp.source_mappings:
-            source_mappings.append({
-                "sourceName": sm.source_name or "",
-                "sourceSystem": sm.source_system or "",
-                "table": sm.table or "",
-                "field": sm.field or "",
-                "dataType": sm.data_type or ""
+        if not dp.source_mappings:
+            # Add a placeholder for unmapped data points
+            data_points.append({
+                "name": dp.name,
+                "sourceMapping": [{
+                    "sourceName": "UNMAPPED",
+                    "sourceSystem": "",
+                    "table": "",
+                    "field": "",
+                    "dataType": "",
+                    "isUnmapped": True
+                }]
             })
-        data_points.append({
-            "name": dp.name,
-            "sourceMapping": source_mappings
-        })
+        else:
+            for sm in dp.source_mappings:
+                source_mappings.append({
+                    "sourceName": sm.source_name or "",
+                    "sourceSystem": sm.source_system or "",
+                    "table": sm.table or "",
+                    "field": sm.field or "",
+                    "dataType": sm.data_type or "",
+                    "isUnmapped": False
+                })
+            data_points.append({
+                "name": dp.name,
+                "sourceMapping": source_mappings
+            })
 
     return jsonify({
         "insightName": insight.insight_name,

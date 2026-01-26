@@ -116,13 +116,19 @@ export default function InsightSearch() {
         </thead>
         <tbody>
           {rows.map((row, idx) => (
-            <tr key={idx} className="even:bg-gray-50 hover:bg-indigo-50 transition-colors">
-              <td className="border px-3 py-2 font-medium">{row.dataPoint}</td>
+            <tr key={idx} className={`${row.isUnmapped ? 'bg-orange-50/50' : 'even:bg-gray-50'} hover:bg-indigo-50 transition-colors`}>
+              <td className={`border px-3 py-2 font-medium ${row.isUnmapped ? 'text-orange-700 font-bold' : ''}`}>{row.dataPoint}</td>
               <td className="border px-3 py-2">{row.sourceSystem}</td>
-              <td className="border px-3 py-2">{row.sourceName}</td>
+              <td className="border px-3 py-2">{row.isUnmapped ? '⚠️ Unmapped' : row.sourceName}</td>
               <td className="border px-3 py-2 font-mono text-xs">{row.table}</td>
-              <td className="border px-3 py-2 text-indigo-600 font-mono font-bold">{row.field}</td>
-              <td className="border px-3 py-2"><span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs uppercase font-semibold">{row.dataType}</span></td>
+              <td className={`border px-3 py-2 font-mono ${row.isUnmapped ? '' : 'text-indigo-600 font-bold'}`}>{row.field}</td>
+              <td className="border px-3 py-2">
+                {row.dataType && (
+                  <span className={`px-2 py-1 rounded text-xs uppercase font-semibold ${row.isUnmapped ? 'bg-orange-100 text-orange-800' : 'bg-indigo-100 text-indigo-800'}`}>
+                    {row.dataType}
+                  </span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
