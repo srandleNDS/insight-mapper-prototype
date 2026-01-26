@@ -63,19 +63,51 @@ def get_all_insights():
     insights = Insight.query.all()
 
     for insight in insights:
+        if not insight.data_points:
+            # Handle insights with NO data points at all
+            results.append({
+                "insightName": insight.insight_name,
+                "calculation": insight.calculation or "",
+                "productsUsedIn": insight.products_used_in or [],
+                "dataPoint": "N/A",
+                "sourceName": "UNMAPPED",
+                "sourceSystem": "",
+                "table": "",
+                "field": "",
+                "dataType": "",
+                "isUnmapped": True
+            })
+            continue
+
         for dp in insight.data_points:
-            for sm in dp.source_mappings:
+            if not dp.source_mappings:
+                # Handle data points with NO source mappings
                 results.append({
                     "insightName": insight.insight_name,
                     "calculation": insight.calculation or "",
                     "productsUsedIn": insight.products_used_in or [],
                     "dataPoint": dp.name,
-                    "sourceName": sm.source_name or "",
-                    "sourceSystem": sm.source_system or "",
-                    "table": sm.table or "",
-                    "field": sm.field or "",
-                    "dataType": sm.data_type or ""
+                    "sourceName": "UNMAPPED",
+                    "sourceSystem": "",
+                    "table": "",
+                    "field": "",
+                    "dataType": "",
+                    "isUnmapped": True
                 })
+            else:
+                for sm in dp.source_mappings:
+                    results.append({
+                        "insightName": insight.insight_name,
+                        "calculation": insight.calculation or "",
+                        "productsUsedIn": insight.products_used_in or [],
+                        "dataPoint": dp.name,
+                        "sourceName": sm.source_name or "",
+                        "sourceSystem": sm.source_system or "",
+                        "table": sm.table or "",
+                        "field": sm.field or "",
+                        "dataType": sm.data_type or "",
+                        "isUnmapped": False
+                    })
 
     return jsonify(results)
 

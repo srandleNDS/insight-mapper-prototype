@@ -39,40 +39,65 @@ export default function InsightSearch() {
   };
 
   // Table for ALL insights view (homepage)
-  const renderFullTable = (rows) => (
-    <div className="overflow-x-auto bg-white border rounded shadow p-4">
-      <table className="w-full text-sm border border-gray-300">
-        <thead className="bg-gray-100 text-left">
-          <tr>
-            <th className="border px-3 py-2">Insight</th>
-            <th className="border px-3 py-2">Calculation</th>
-            <th className="border px-3 py-2">Used In Products</th>
-            <th className="border px-3 py-2">Data Point</th>
-            <th className="border px-3 py-2">Source</th>
-            <th className="border px-3 py-2">System</th>
-            <th className="border px-3 py-2">Table</th>
-            <th className="border px-3 py-2">Field</th>
-            <th className="border px-3 py-2">Data Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, idx) => (
-            <tr key={idx} className="even:bg-gray-50">
-              <td className="border px-3 py-2">{row.insightName}</td>
-              <td className="border px-3 py-2">{row.calculation}</td>
-              <td className="border px-3 py-2">{row.productsUsedIn?.join(', ')}</td>
-              <td className="border px-3 py-2">{row.dataPoint}</td>
-              <td className="border px-3 py-2">{row.sourceName}</td>
-              <td className="border px-3 py-2">{row.sourceSystem}</td>
-              <td className="border px-3 py-2">{row.table}</td>
-              <td className="border px-3 py-2">{row.field}</td>
-              <td className="border px-3 py-2">{row.dataType}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  const renderFullTable = (rows) => {
+    const unmappedCount = rows.filter(r => r.isUnmapped).length;
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-4">
+          <div className="bg-white border rounded-lg p-4 flex-1 shadow-sm border-l-4 border-l-green-500">
+            <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Total Rows</span>
+            <p className="text-2xl font-black text-gray-800">{rows.length}</p>
+          </div>
+          <div className={`bg-white border rounded-lg p-4 flex-1 shadow-sm border-l-4 ${unmappedCount > 0 ? 'border-l-orange-500' : 'border-l-indigo-500'}`}>
+            <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Unmapped Points</span>
+            <p className={`text-2xl font-black ${unmappedCount > 0 ? 'text-orange-600' : 'text-indigo-600'}`}>{unmappedCount}</p>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto bg-white border rounded shadow p-4">
+          <table className="w-full text-sm border border-gray-300">
+            <thead className="bg-gray-100 text-left">
+              <tr>
+                <th className="border px-3 py-2">Insight</th>
+                <th className="border px-3 py-2">Calculation</th>
+                <th className="border px-3 py-2">Used In Products</th>
+                <th className="border px-3 py-2">Data Point</th>
+                <th className="border px-3 py-2">Source</th>
+                <th className="border px-3 py-2">System</th>
+                <th className="border px-3 py-2">Table</th>
+                <th className="border px-3 py-2">Field</th>
+                <th className="border px-3 py-2">Data Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, idx) => (
+                <tr key={idx} className={`${row.isUnmapped ? 'bg-orange-50/50' : 'even:bg-gray-50'}`}>
+                  <td className="border px-3 py-2 font-medium">{row.insightName}</td>
+                  <td className="border px-3 py-2 text-xs text-gray-600">{row.calculation}</td>
+                  <td className="border px-3 py-2">
+                    <div className="flex flex-wrap gap-1">
+                      {row.productsUsedIn?.map((p, i) => (
+                        <span key={i} className="px-1.5 py-0.5 bg-gray-200 rounded-sm text-[10px]">{p}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className={`border px-3 py-2 ${row.isUnmapped ? 'text-orange-700 font-bold' : ''}`}>{row.dataPoint}</td>
+                  <td className={`border px-3 py-2 ${row.isUnmapped ? 'bg-orange-100/50 italic text-gray-400' : ''}`}>
+                    {row.isUnmapped ? '⚠️ Unmapped' : row.sourceName}
+                  </td>
+                  <td className="border px-3 py-2">{row.sourceSystem}</td>
+                  <td className="border px-3 py-2 font-mono text-[10px]">{row.table}</td>
+                  <td className="border px-3 py-2 font-mono text-indigo-600">{row.field}</td>
+                  <td className="border px-3 py-2 text-[10px]">{row.dataType}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
 
   // Table for filtered insight view
   const renderFilteredTable = (rows) => (
