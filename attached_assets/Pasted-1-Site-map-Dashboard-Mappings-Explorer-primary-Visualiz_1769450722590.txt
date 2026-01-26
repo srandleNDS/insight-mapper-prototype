@@ -1,0 +1,180 @@
+1) Site map
+
+Dashboard
+
+Mappings Explorer (primary)
+
+Visualization Detail
+
+Audit & Changes
+
+Admin / Upload (optional if you’ll upload new Excel versions)
+
+2) Global layout (all pages)
+
+Top Nav
+
+Logo / App name (left)
+
+Tabs: Dashboard | Mappings Explorer | Audit
+
+Global Search bar (search viz name / field / table)
+
+User menu
+
+Left Sidebar Filters (collapsible)
+
+Tab Name (multi-select)
+
+Base Visualization (typeahead)
+
+Filter Context (required filters + optional filters)
+
+Source Type / Source Collection
+
+Enterprise Table / Data Dictionary Table
+
+“Show only incomplete lineage” toggle (optional)
+
+Main Content
+
+Page-specific content
+
+3) Mappings Explorer (core page)
+Wireframe
+┌───────────────────────────────────────────────────────────────────────────┐
+│ Top Nav: [Logo]  Dashboard  Explorer  Audit   [Search..................] │
+└───────────────────────────────────────────────────────────────────────────┘
+┌───────────────┬───────────────────────────────────────────────────────────┐
+│ Filters       │ Explorer                                                  │
+│───────────────│───────────────────────────────────────────────────────────│
+│ Tab Name      │ Header: Mappings Explorer                                 │
+│ [▢ Denials]   │ [View: Grouped by Base ▼] [Export CSV] [Share link]       │
+│ [▢ Payments]  │───────────────────────────────────────────────────────────│
+│               │ Table:                                                    │
+│ Filter Context│ ┌───────────────┬─────────────────────┬─────────────────┐ │
+│ [▢ Base only] │ │ Tab Name      │ Data Visualization   │ #Fields (Ent/DD)│ │
+│ [▢ Lob]       │ │ Denials       │ Denial Rate          │  8 / 8          │ │
+│ [▢ Segment]   │ │ Denials       │ Denial Rate (Lob)    │  9 / 9          │ │
+│ [▢ Payer Type]│ │ Denials       │ Denial Rate (Segment)│  9 / 9          │ │
+│ [▢ Payer]     │ │ ...           │ ...                  │ ...             │ │
+│ [▢ Operations]│ └───────────────┴─────────────────────┴─────────────────┘ │
+│ [▢ Location]  │                                                           │
+│               │ Right-side Preview Panel (optional):                       │
+│ Source        │  Selected viz summary + key lineage highlights             │
+│ [▢ PMS]       │                                                           │
+└───────────────┴───────────────────────────────────────────────────────────┘
+
+Explorer features (what matters for your use case)
+
+Grouped view by Base Visualization
+
+Expand a base viz to reveal:
+
+Base (unfiltered) rows
+
+Filtered vizzes in required order: Lob → Segment → Payer Type → Payer → Operations → Location
+
+Any optional filters preserved (shown below required filters)
+
+Badges
+
+“Base” badge
+
+“Filtered: Lob” badge
+
+“Missing Source Column” badge (optional)
+
+Quick compare
+
+Checkbox-select 2–3 vizzes → “Compare fields” modal
+
+4) Visualization Detail page
+Wireframe
+┌───────────────────────────────────────────────────────────────────────────┐
+│ Top Nav ...                                                                │
+└───────────────────────────────────────────────────────────────────────────┘
+┌───────────────┬───────────────────────────────────────────────────────────┐
+│ Filters       │ Visualization Detail                                      │
+│               │ Title: Denial Rate (Payer)   [Base link] [Copy link]      │
+│               │ Tabs: Overview | Fields | Lineage | Calculations          │
+│               │───────────────────────────────────────────────────────────│
+│               │ Overview Card:                                             │
+│               │ - Tab Name: Denial Mgmt                                    │
+│               │ - Calculation: ...                                         │
+│               │ - Filter context: Payer → Insurance Name                   │
+│               │ - Counts: Enterprise fields (n), DD fields (n)             │
+│               │                                                           │
+│               │ Fields (table):                                            │
+│               │ ┌──────────┬──────────┬──────────┬──────────┬───────────┐ │
+│               │ │ Ent Tbl  │ Ent Field│ Type     │ DD Tbl   │ DD Field   │ │
+│               │ ├──────────┼──────────┼──────────┼──────────┼───────────┤ │
+│               │ │ dbo...   │ ...      │ ...      │ ...      │ ...        │ │
+│               │ │ dbo.payer│ Insurance│ varchar  │ ...      │ ...        │ │
+│               │ └──────────┴──────────┴──────────┴──────────┴───────────┘ │
+│               │ Lineage section (horizontal): Source → DD → Enterprise     │
+└───────────────┴───────────────────────────────────────────────────────────┘
+
+Detail page features
+
+“Base viz” backlink (so users see what fields were inherited)
+
+Field grouping
+
+“Base fields” section
+
+“Filtered-by field” section (highlighted)
+
+Lineage view
+
+Source Type / Collection / Table / Column / Type
+
+Audit mini-log
+
+“Added as required filter on <date>” (if you store versions)
+
+5) Audit & Changes page
+Wireframe
+┌───────────────────────────────────────────────────────────────────────────┐
+│ Top Nav ...                                                                │
+└───────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│ Audit & Changes                                                            │
+│ [Upload version ▼] [Compare to previous] [Export audit CSV]                │
+│───────────────────────────────────────────────────────────────────────────│
+│ Audit Table                                                                │
+│ ┌───────────────┬──────────────────────────┬───────────────┬────────────┐ │
+│ │ Base Viz      │ Filtered Viz Added       │ Filter Field  │ Timestamp  │ │
+│ ├───────────────┼──────────────────────────┼───────────────┼────────────┤ │
+│ │ Denial Rate   │ Denial Rate (Lob)        │ Lob           │ ...        │ │
+│ │ Denial Rate   │ Denial Rate (Payer)      │ Insurance Name│ ...        │ │
+│ └───────────────┴──────────────────────────┴───────────────┴────────────┘ │
+└───────────────────────────────────────────────────────────────────────────┘
+
+6) Data model assumptions (simple + practical)
+
+MappingRow
+
+TabName, DataVizName, Calculation
+
+Enterprise: Table, Field, Type
+
+DataTeam: Table, Field, Type
+
+Source: Type, Collection, Table, Column, Type
+
+FilterContext (nullable): “Lob”, “Segment”, etc.
+
+BaseVizName (normalized)
+
+AuditRow
+
+BaseVizName, FilterVizName, FilterField, CreatedAt, VersionId
+
+7) UX rules specific to your mapping logic
+
+Always display filtered vizzes immediately after base viz and in the required order.
+
+For “Payer” filter context, display label Payer, but show mapped field Insurance Name.
+
+Preserve optional filters, but visually separate them under an “Optional filters” sub-group.
