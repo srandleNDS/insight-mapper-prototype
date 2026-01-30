@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext } from 'react';
-import { Outlet, NavLink, useNavigate, useSearchParams } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 
 const FilterContext = createContext();
 
