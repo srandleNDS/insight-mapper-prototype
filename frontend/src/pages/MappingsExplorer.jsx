@@ -67,6 +67,12 @@ export default function MappingsExplorer() {
     );
   }
 
+  if (filters.product && filters.product.length > 0) {
+    filteredData = filteredData.filter(d => 
+      filters.product.includes(d.product)
+    );
+  }
+
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center h-64">
@@ -104,6 +110,7 @@ export default function MappingsExplorer() {
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
+              <th className="text-left px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Product</th>
               <th className="text-left px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Tab Name</th>
               <th className="text-left px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Data Visualization</th>
               <th className="text-left px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Filter Context</th>
@@ -126,6 +133,16 @@ export default function MappingsExplorer() {
                     className="hover:bg-gray-50 cursor-pointer transition-colors"
                     onClick={() => toggleExpand(insight.id)}
                   >
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        insight.product === 'InsightFlow' ? 'bg-[#18A69B]/10 text-[#18A69B]' :
+                        insight.product === 'DenialIQ' ? 'bg-blue-50 text-blue-600' :
+                        insight.product === 'PayerIQ' ? 'bg-purple-50 text-purple-600' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {insight.product || 'Unknown'}
+                      </span>
+                    </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                         {tabName}

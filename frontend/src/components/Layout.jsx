@@ -14,6 +14,7 @@ export default function Layout() {
     tabName: [],
     filterContext: [],
     sourceType: [],
+    product: [],
     incompleteOnly: false
   });
   const navigate = useNavigate();
@@ -128,6 +129,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleInc
   const tabOptions = ['Denials', 'Payments', 'Claims', 'Revenue'];
   const filterContextOptions = ['Base only', 'LOB', 'Segment', 'Payer Type', 'Payer', 'Operations', 'Location'];
   const sourceOptions = ['PMS', 'EHR', 'Claims', 'Finance'];
+  const productOptions = ['InsightFlow', 'DenialIQ', 'PayerIQ'];
 
   return (
     <div className="p-4 space-y-6">
@@ -170,6 +172,23 @@ function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleInc
                   type="checkbox" 
                   checked={filters.filterContext.includes(opt)}
                   onChange={() => toggleFilter('filterContext', opt)}
+                  className="w-4 h-4 rounded border-gray-300 text-[#18A69B] focus:ring-[#18A69B]"
+                />
+                <span className="text-sm text-gray-600 group-hover:text-gray-900">{opt}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="text-xs font-bold text-gray-500 mb-2">Product</h4>
+          <div className="space-y-1">
+            {productOptions.map(opt => (
+              <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  checked={filters.product.includes(opt)}
+                  onChange={() => toggleFilter('product', opt)}
                   className="w-4 h-4 rounded border-gray-300 text-[#18A69B] focus:ring-[#18A69B]"
                 />
                 <span className="text-sm text-gray-600 group-hover:text-gray-900">{opt}</span>

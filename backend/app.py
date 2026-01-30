@@ -210,14 +210,26 @@ def get_stats():
     source_systems = db.session.query(SourceMapping.source_system).distinct().all()
     source_systems = [s[0] for s in source_systems if s[0]]
     
+    products = db.session.query(
+        Insight.product, 
+        db.func.count(Insight.id)
+    ).filter(Insight.product != None, Insight.product != '').group_by(Insight.product).all()
+    product_stats = [{"name": p[0], "count": p[1]} for p in products]
+    
     return jsonify({
         "totalVisualizations": total_insights,
         "totalFields": total_datapoints,
         "mappedFields": mapped_count,
         "unmappedFields": unmapped_count,
         "totalMappings": total_mappings,
-        "sourceSystems": source_systems
+        "sourceSystems": source_systems,
+        "products": product_stats
     })
+
+@app.route("/api/products", methods=["GET"])
+def get_products():
+    products = db.session.query(Insight.product).distinct().all()
+    return jsonify([p[0] for p in products if p[0]])
 
 @app.route("/api/tabs", methods=["GET"])
 def get_tabs():

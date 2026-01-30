@@ -6,7 +6,8 @@ export default function Dashboard() {
     totalVisualizations: 0,
     totalFields: 0,
     mappedFields: 0,
-    unmappedFields: 0
+    unmappedFields: 0,
+    products: []
   });
   const [recentViz, setRecentViz] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,8 @@ export default function Dashboard() {
         totalFields: statsData.totalFields,
         mappedFields: statsData.mappedFields,
         unmappedFields: statsData.unmappedFields,
-        sourceSystems: statsData.sourceSystems
+        sourceSystems: statsData.sourceSystems,
+        products: statsData.products || []
       });
       setRecentViz(listData.data || []);
       setLoading(false);
@@ -130,6 +132,25 @@ export default function Dashboard() {
               <span className="text-sm font-medium text-gray-600 group-hover:text-[#18A69B]">View Audit Log</span>
             </Link>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Products</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {stats.products.map((product, idx) => (
+            <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  product.name === 'InsightFlow' ? 'bg-[#18A69B]' : 
+                  product.name === 'DenialIQ' ? 'bg-blue-500' : 
+                  'bg-purple-500'
+                }`}></div>
+                <span className="font-semibold text-gray-800">{product.name}</span>
+              </div>
+              <span className="text-lg font-bold text-gray-900">{product.count}</span>
+            </div>
+          ))}
         </div>
       </div>
 
