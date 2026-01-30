@@ -242,12 +242,17 @@ def list_insights_summary():
     per_page = request.args.get("per_page", 50, type=int)
     tab = request.args.get("tab", None)
     search = request.args.get("search", None)
+    product = request.args.get("product", None)
     incomplete_only = request.args.get("incomplete_only", "false").lower() == "true"
     
     query = Insight.query
     
     if tab:
         query = query.filter(Insight.tab_name == tab)
+    
+    if product:
+        products = product.split(',')
+        query = query.filter(Insight.product.in_(products))
     
     if search:
         query = query.filter(Insight.insight_name.ilike(f"%{search}%"))

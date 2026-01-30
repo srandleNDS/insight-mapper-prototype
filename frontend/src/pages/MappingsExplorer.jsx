@@ -10,7 +10,7 @@ export default function MappingsExplorer() {
   const [expandedRows, setExpandedRows] = useState({});
   const [expandedData, setExpandedData] = useState({});
   const [page] = useState(1);
-  const { filters } = useFilters() || { filters: { tabName: [], filterContext: [], sourceType: [], incompleteOnly: false } };
+  const { filters } = useFilters() || { filters: { tabName: [], filterContext: [], sourceType: [], product: [], incompleteOnly: false } };
 
   const fetchData = React.useCallback(async () => {
     try {
@@ -22,6 +22,9 @@ export default function MappingsExplorer() {
         incomplete_only: filters.incompleteOnly.toString()
       });
       if (searchQuery) params.set('search', searchQuery);
+      if (filters.product && filters.product.length > 0) {
+        params.set('product', filters.product.join(','));
+      }
       
       const res = await fetch(`/api/insight/list?${params}`);
       const json = await res.json();
@@ -31,7 +34,7 @@ export default function MappingsExplorer() {
       console.error('Error fetching data:', err);
       setLoading(false);
     }
-  }, [page, filters.incompleteOnly, searchParams]);
+  }, [page, filters.incompleteOnly, filters.product, searchParams]);
 
   useEffect(() => {
     fetchData();
