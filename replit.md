@@ -32,15 +32,15 @@ A full-stack application for searching and exploring data insights with their da
 - **Database**: PostgreSQL
 
 ## Data Sources
-The application uses 10 data dictionary CSV files:
-- WebPT, WinOMS, WSC, DenialIQ, Dentrix, DSN, HCHB, PrimaryCare-Aprima, PrimaryCare-Ethizo, Waystar
+The application uses 11 data dictionary files:
+- WebPT, WinOMS, WSC, DenialIQ, Dentrix, DSN, HCHB, PrimaryCare-Aprima, PrimaryCare-Ethizo, Waystar, AscendGP
 
 Current database statistics:
-- 1,043 visualizations
-- 5,879 data points (fields)
-- 5,777 mapped fields
-- 102 unmapped fields
-- 20,541 source mappings
+- 1,098 visualizations
+- 6,295 data points (fields)
+- 6,088 mapped fields
+- 207 unmapped fields
+- 20,852 source mappings
 
 ## Color Palette
 - Primary: #18A69B (teal)
