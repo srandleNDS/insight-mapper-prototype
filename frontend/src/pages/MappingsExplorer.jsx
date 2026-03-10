@@ -112,16 +112,15 @@ export default function MappingsExplorer() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full">
+        <table className="w-full table-fixed">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Product</th>
-              <th className="text-left px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Tab Name</th>
-              <th className="text-left px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Data Visualization</th>
-              <th className="text-left px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Filter Context</th>
-              <th className="text-center px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider"># Fields</th>
-              <th className="text-center px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3"></th>
+              <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-[12%]">Product</th>
+              <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-[18%]">Tab Name</th>
+              <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Data Visualization</th>
+              <th className="text-center px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-[8%]">Fields</th>
+              <th className="text-center px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-[14%]">Status</th>
+              <th className="px-4 py-3 w-[10%]"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -138,8 +137,8 @@ export default function MappingsExplorer() {
                     className="hover:bg-gray-50 cursor-pointer transition-colors"
                     onClick={() => toggleExpand(insight.id)}
                   >
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate ${
                         insight.product === 'InsightFlow' ? 'bg-[#18A69B]/10 text-[#18A69B]' :
                         insight.product === 'DenialIQ' ? 'bg-blue-50 text-blue-600' :
                         insight.product === 'PayerIQ' ? 'bg-purple-50 text-purple-600' :
@@ -148,57 +147,53 @@ export default function MappingsExplorer() {
                         {insight.product || 'Unknown'}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 truncate max-w-full">
                         {tabName}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <svg className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <svg className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
                         </svg>
-                        <span className="font-medium text-gray-900">{insight.insightName}</span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#18A69B]/10 text-[#18A69B]">
-                          BASE
-                        </span>
+                        <span className="font-medium text-gray-900 truncate">{insight.insightName}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">—</td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 py-3 text-center">
                       <span className="text-sm font-medium text-gray-900">{fieldCount}</span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 py-3 text-center">
                       {unmappedCount > 0 ? (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-600">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                           </svg>
-                          {unmappedCount} unmapped
+                          {unmappedCount}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-600">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                           </svg>
-                          Complete
+                          OK
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-3 text-right">
                       <Link 
                         to={`/visualization/${insight.id}`}
                         className="text-[#18A69B] hover:underline text-sm font-medium"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        View Details
+                        Details
                       </Link>
                     </td>
                   </tr>
                   
                   {isExpanded && (
                     <tr className="bg-gray-50/50">
-                      <td colSpan={7} className="px-6 py-4">
+                      <td colSpan={6} className="px-4 py-4">
                         <div className="ml-8 space-y-2">
                           <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Data Points</div>
                           {!insightDetail ? (
