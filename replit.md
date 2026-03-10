@@ -1,7 +1,7 @@
 # Insight Mapper
 
 ## Overview
-A full-stack application for searching and exploring data insights with their data points and source mappings. Features a multi-page React frontend with Dashboard, Mappings Explorer, Visualization Detail, and Audit pages. Connected to Flask backend and PostgreSQL. Populated with data from 11 data dictionary files representing different healthcare systems. Includes AI-powered features via Replit AI Integrations (OpenAI).
+A full-stack application for searching and exploring data insights with their data points and source mappings. Features a multi-page React frontend with Dashboard, Mappings Explorer, Visualization Detail, Audit, and Bulk Import pages. Connected to Flask backend and PostgreSQL. Populated with data from 11 data dictionary files representing different healthcare systems. Includes AI-powered features via Replit AI Integrations (OpenAI).
 
 ## Project Structure
 ```
@@ -19,6 +19,7 @@ A full-stack application for searching and exploring data insights with their da
       MappingsExplorer.jsx - Main data grid for visualizations
       VisualizationDetail.jsx - Detail view with tabs and AI features
       AuditPage.jsx   - Audit and changes tracking
+      ImportPage.jsx  - Bulk CSV import (product data + source mappings)
     App.js            - React Router configuration
     index.js          - Entry point
   /public
@@ -68,6 +69,7 @@ Current database statistics:
 2. **Mappings Explorer** (`/explorer`) - Paginated table view with filters
 3. **Visualization Detail** (`/visualization/:id`) - Tabs: Overview, Fields (with AI Suggest), Lineage (with AI Analysis), Calculations (with AI Explain)
 4. **Audit & Changes** (`/audit`) - Track mapping changes and data lineage updates
+5. **Bulk Import** (`/import`) - CSV upload for product data and source mappings with preview/validation
 
 ## API Endpoints
 - `GET /api/stats` - Get aggregate statistics
@@ -81,6 +83,10 @@ Current database statistics:
 - `POST /api/ai/search` - Natural language search
 - `POST /api/ai/analyze-lineage` - AI lineage analysis
 - `POST /api/ai/chat` - General AI chat assistant
+- `POST /api/import/preview` - Preview CSV file before import
+- `POST /api/import/product` - Import product data (visualizations + data points)
+- `POST /api/import/source` - Import source mappings
+- `GET /api/import/template/:type` - Download CSV template (product or source)
 
 ## Database Models
 - **Insight**: id, insight_name, tab_name, calculation, products_used_in, product

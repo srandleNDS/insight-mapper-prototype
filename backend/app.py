@@ -1,4 +1,6 @@
 import os
+import csv
+import io
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from models import db, Insight, DataPoint, SourceMapping
@@ -7,6 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a-secret-key"
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
@@ -503,6 +506,286 @@ def ai_chat_endpoint():
     except Exception as e:
         app.logger.error(f"AI chat error: {e}")
         return jsonify({"error": "Failed to process your message. Please try again."}), 500
+
+
+PRODUCT_CSV_COLUMNS = [
+    'Product', 'Tab Name', 'Data Visualization', 'Data Viz Calculation',
+    'Enterprise DD Table', 'Enterprise DD Field', 'Enterprise DD Data Type'
+]
+
+SOURCE_CSV_COLUMNS = [
+    'Product', 'Tab Name', 'Data Visualization', 'Data Point Field',
+    'Source System', 'Source Type', 'Source Data Collection',
+    'Source Table', 'Source Column', 'Source Data Type',
+    'DD Table', 'DD Field', 'DD Data Type'
+]
+
+
+def _parse_csv_upload(file_storage):
+    try:
+        content = file_storage.read().decode('utf-8-sig')
+    except UnicodeDecodeError:
+        file_storage.seek(0)
+        content = file_storage.read().decode('latin-1')
+    reader = csv.DictReader(io.StringIO(content))
+    rows = list(reader)
+    columns = reader.fieldnames or []
+    return rows, columns
+
+
+@app.route("/api/import/preview", methods=["POST"])
+def import_preview():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files['file']
+    import_type = request.form.get('type', 'product')
+
+    if not file.filename.lower().endswith('.csv'):
+        return jsonify({"error": "Only CSV files are supported"}), 400
+
+    rows, columns = _parse_csv_upload(file)
+
+    if import_type == 'product':
+        expected = PRODUCT_CSV_COLUMNS
+    else:
+        expected = SOURCE_CSV_COLUMNS
+
+    missing = [c for c in expected if c not in columns]
+
+    preview_rows = rows[:10]
+
+    products = list(set(r.get('Product', '').strip() for r in rows if r.get('Product', '').strip()))
+    viz_names = list(set(r.get('Data Visualization', '').strip() for r in rows if r.get('Data Visualization', '').strip()))
+
+    return jsonify({
+        "totalRows": len(rows),
+        "columns": columns,
+        "expectedColumns": expected,
+        "missingColumns": missing,
+        "preview": preview_rows,
+        "products": sorted(products),
+        "visualizations": len(viz_names),
+        "valid": len(missing) == 0
+    })
+
+
+@app.route("/api/import/product", methods=["POST"])
+def import_product_data():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files['file']
+    if not file.filename.lower().endswith('.csv'):
+        return jsonify({"error": "Only CSV files are supported"}), 400
+
+    rows, columns = _parse_csv_upload(file)
+    missing = [c for c in PRODUCT_CSV_COLUMNS if c not in columns]
+    if missing:
+        return jsonify({"error": f"Missing required columns: {', '.join(missing)}"}), 400
+
+    insights_created = 0
+    insights_updated = 0
+    datapoints_created = 0
+    errors = []
+
+    insights_cache = {}
+
+    try:
+        for i, row in enumerate(rows):
+            product = row.get('Product', '').strip()
+            tab_name = row.get('Tab Name', '').strip()
+            viz_name = row.get('Data Visualization', '').strip()
+            viz_calc = row.get('Data Viz Calculation', '').strip()
+            ent_table = row.get('Enterprise DD Table', '').strip()
+            ent_field = row.get('Enterprise DD Field', '').strip()
+            ent_type = row.get('Enterprise DD Data Type', '').strip()
+
+            if not viz_name:
+                errors.append(f"Row {i+2}: Missing Data Visualization name")
+                continue
+
+            if not ent_field:
+                errors.append(f"Row {i+2}: Missing Enterprise DD Field")
+                continue
+
+            cache_key = (viz_name, product)
+            if cache_key in insights_cache:
+                insight = insights_cache[cache_key]
+            else:
+                insight = Insight.query.filter_by(
+                    insight_name=viz_name, product=product
+                ).first()
+
+                if not insight:
+                    insight = Insight(
+                        insight_name=viz_name,
+                        tab_name=tab_name,
+                        calculation=viz_calc,
+                        products_used_in=[tab_name] if tab_name else [],
+                        product=product
+                    )
+                    db.session.add(insight)
+                    db.session.flush()
+                    insights_created += 1
+                else:
+                    if viz_calc and not insight.calculation:
+                        insight.calculation = viz_calc
+                    if tab_name and not insight.tab_name:
+                        insight.tab_name = tab_name
+                    insights_updated += 1
+
+                insights_cache[cache_key] = insight
+
+            existing_dp = DataPoint.query.filter_by(
+                insight_id=insight.id, name=ent_field
+            ).first()
+
+            if not existing_dp:
+                dp = DataPoint(
+                    insight_id=insight.id,
+                    name=ent_field,
+                    ent_table=ent_table,
+                    ent_field=ent_field,
+                    ent_type=ent_type
+                )
+                db.session.add(dp)
+                datapoints_created += 1
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "insightsCreated": insights_created,
+            "insightsUpdated": insights_updated,
+            "dataPointsCreated": datapoints_created,
+            "errors": errors[:20],
+            "totalRows": len(rows)
+        })
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Product import error: {e}")
+        return jsonify({"error": "Import failed. Database has been rolled back."}), 500
+
+
+@app.route("/api/import/source", methods=["POST"])
+def import_source_data():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files['file']
+    if not file.filename.lower().endswith('.csv'):
+        return jsonify({"error": "Only CSV files are supported"}), 400
+
+    rows, columns = _parse_csv_upload(file)
+    missing = [c for c in SOURCE_CSV_COLUMNS if c not in columns]
+    if missing:
+        return jsonify({"error": f"Missing required columns: {', '.join(missing)}"}), 400
+
+    mappings_created = 0
+    skipped = 0
+    errors = []
+
+    try:
+        for i, row in enumerate(rows):
+            product = row.get('Product', '').strip()
+            viz_name = row.get('Data Visualization', '').strip()
+            dp_field = row.get('Data Point Field', '').strip()
+            src_system = row.get('Source System', '').strip()
+            src_type = row.get('Source Type', '').strip()
+            src_collection = row.get('Source Data Collection', '').strip()
+            src_table = row.get('Source Table', '').strip()
+            src_column = row.get('Source Column', '').strip()
+            src_data_type = row.get('Source Data Type', '').strip()
+            dd_table = row.get('DD Table', '').strip()
+            dd_field = row.get('DD Field', '').strip()
+            dd_type = row.get('DD Data Type', '').strip()
+
+            if not viz_name or not dp_field:
+                errors.append(f"Row {i+2}: Missing Data Visualization or Data Point Field")
+                continue
+
+            insight = Insight.query.filter_by(
+                insight_name=viz_name, product=product
+            ).first()
+            if not insight:
+                insight = Insight.query.filter_by(insight_name=viz_name).first()
+
+            if not insight:
+                errors.append(f"Row {i+2}: Visualization '{viz_name}' not found")
+                continue
+
+            data_point = DataPoint.query.filter_by(
+                insight_id=insight.id, name=dp_field
+            ).first()
+
+            if not data_point:
+                errors.append(f"Row {i+2}: Data point '{dp_field}' not found in '{viz_name}'")
+                continue
+
+            existing = SourceMapping.query.filter_by(
+                data_point_id=data_point.id,
+                source_system=src_system or src_collection,
+                table=src_table,
+                field=src_column
+            ).first()
+
+            if existing:
+                skipped += 1
+                continue
+
+            sm = SourceMapping(
+                data_point_id=data_point.id,
+                source_system=src_system or src_collection,
+                source_name=src_column or dd_field,
+                table=src_table,
+                field=src_column,
+                data_type=src_data_type or dd_type,
+                source_type=src_type,
+                dd_table=dd_table,
+                dd_field=dd_field,
+                dd_type=dd_type
+            )
+            db.session.add(sm)
+            mappings_created += 1
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "mappingsCreated": mappings_created,
+            "skipped": skipped,
+            "errors": errors[:20],
+            "totalRows": len(rows)
+        })
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Source import error: {e}")
+        return jsonify({"error": "Import failed. Database has been rolled back."}), 500
+
+
+@app.route("/api/import/template/<template_type>")
+def download_template(template_type):
+    if template_type == 'product':
+        columns = PRODUCT_CSV_COLUMNS
+        example = ['InsightFlow', 'Dashboard', 'Total Revenue', 'SUM(Revenue)', 'fact_revenue', 'total_amount', 'decimal']
+    elif template_type == 'source':
+        columns = SOURCE_CSV_COLUMNS
+        example = ['InsightFlow', 'Dashboard', 'Total Revenue', 'total_amount', 'WebPT', 'PMS', 'WebPT', 'billing', 'total_charge', 'decimal', 'dbo.Billing', 'TotalCharge', 'money']
+    else:
+        return jsonify({"error": "Invalid template type"}), 400
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(columns)
+    writer.writerow(example)
+    
+    from flask import Response
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename={template_type}_import_template.csv'}
+    )
 
 
 if __name__ == "__main__":

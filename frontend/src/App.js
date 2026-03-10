@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import MappingsExplorer from './pages/MappingsExplorer';
 import VisualizationDetail from './pages/VisualizationDetail';
 import AuditPage from './pages/AuditPage';
+import ImportPage from './pages/ImportPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="explorer" element={<MappingsExplorer />} />
           <Route path="visualization/:id" element={<VisualizationDetail />} />
           <Route path="audit" element={<AuditPage />} />
+          <Route path="import" element={<ImportPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
