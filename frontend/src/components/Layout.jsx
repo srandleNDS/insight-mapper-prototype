@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import AiChat from './AiChat';
 
@@ -13,12 +13,22 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filters, setFilters] = useState({
     tabName: [],
-    filterContext: [],
-    sourceType: [],
     product: [],
     incompleteOnly: false
   });
+  const [tabOptions, setTabOptions] = useState([]);
+  const [productOptions, setProductOptions] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/tabs').then(r => r.json()),
+      fetch('/api/products').then(r => r.json())
+    ]).then(([tabs, products]) => {
+      setTabOptions(tabs.sort());
+      setProductOptions(products.sort());
+    }).catch(err => console.error('Error loading filter options:', err));
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -43,8 +53,18 @@ export default function Layout() {
     }));
   };
 
+  const clearFilters = () => {
+    setFilters({
+      tabName: [],
+      product: [],
+      incompleteOnly: false
+    });
+  };
+
+  const activeFilterCount = filters.tabName.length + filters.product.length + (filters.incompleteOnly ? 1 : 0);
+
   return (
-    <FilterContext.Provider value={{ filters, toggleFilter, toggleIncomplete }}>
+    <FilterContext.Provider value={{ filters, toggleFilter, toggleIncomplete, clearFilters }}>
       <div className="min-h-screen bg-[#f7f7f7] flex flex-col">
         <header className="bg-white border-b border-gray-200 py-3 px-6 sticky top-0 z-50 shadow-sm">
           <div className="flex items-center justify-between">
@@ -114,6 +134,10 @@ export default function Layout() {
               filters={filters}
               toggleFilter={toggleFilter}
               toggleIncomplete={toggleIncomplete}
+              clearFilters={clearFilters}
+              activeFilterCount={activeFilterCount}
+              tabOptions={tabOptions}
+              productOptions={productOptions}
             />
           </aside>
 
@@ -127,30 +151,42 @@ export default function Layout() {
   );
 }
 
-function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleIncomplete }) {
-  const tabOptions = ['Denials', 'Payments', 'Claims', 'Revenue'];
-  const filterContextOptions = ['Base only', 'LOB', 'Segment', 'Payer Type', 'Payer', 'Operations', 'Location'];
-  const sourceOptions = ['PMS', 'EHR', 'Claims', 'Finance'];
-  const productOptions = ['InsightFlow', 'DenialIQ', 'PayerIQ'];
-
+function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleIncomplete, clearFilters, activeFilterCount, tabOptions, productOptions }) {
   return (
     <div className="p-4 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Filters</h3>
-        <button 
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Filters</h3>
+          {activeFilterCount > 0 && (
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#18A69B] text-white text-[10px] font-bold">
+              {activeFilterCount}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          {activeFilterCount > 0 && (
+            <button 
+              onClick={clearFilters}
+              className="text-xs text-[#18A69B] hover:underline font-medium mr-2"
+            >
+              Clear all
+            </button>
+          )}
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="space-y-4">
         <div>
           <h4 className="text-xs font-bold text-gray-500 mb-2">Tab Name</h4>
-          <div className="space-y-1">
+          <div className="space-y-1 max-h-48 overflow-y-auto">
             {tabOptions.map(opt => (
               <label key={opt} className="flex items-center gap-2 cursor-pointer group">
                 <input 
@@ -159,24 +195,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleInc
                   onChange={() => toggleFilter('tabName', opt)}
                   className="w-4 h-4 rounded border-gray-300 text-[#18A69B] focus:ring-[#18A69B]"
                 />
-                <span className="text-sm text-gray-600 group-hover:text-gray-900">{opt}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h4 className="text-xs font-bold text-gray-500 mb-2">Filter Context</h4>
-          <div className="space-y-1">
-            {filterContextOptions.map(opt => (
-              <label key={opt} className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="checkbox" 
-                  checked={filters.filterContext.includes(opt)}
-                  onChange={() => toggleFilter('filterContext', opt)}
-                  className="w-4 h-4 rounded border-gray-300 text-[#18A69B] focus:ring-[#18A69B]"
-                />
-                <span className="text-sm text-gray-600 group-hover:text-gray-900">{opt}</span>
+                <span className="text-sm text-gray-600 group-hover:text-gray-900 truncate">{opt}</span>
               </label>
             ))}
           </div>
@@ -191,23 +210,6 @@ function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleInc
                   type="checkbox" 
                   checked={filters.product.includes(opt)}
                   onChange={() => toggleFilter('product', opt)}
-                  className="w-4 h-4 rounded border-gray-300 text-[#18A69B] focus:ring-[#18A69B]"
-                />
-                <span className="text-sm text-gray-600 group-hover:text-gray-900">{opt}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h4 className="text-xs font-bold text-gray-500 mb-2">Source Type</h4>
-          <div className="space-y-1">
-            {sourceOptions.map(opt => (
-              <label key={opt} className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="checkbox" 
-                  checked={filters.sourceType.includes(opt)}
-                  onChange={() => toggleFilter('sourceType', opt)}
                   className="w-4 h-4 rounded border-gray-300 text-[#18A69B] focus:ring-[#18A69B]"
                 />
                 <span className="text-sm text-gray-600 group-hover:text-gray-900">{opt}</span>

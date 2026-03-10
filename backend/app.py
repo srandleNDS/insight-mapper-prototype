@@ -248,15 +248,25 @@ def list_insights_summary():
     query = Insight.query
     
     if tab:
-        query = query.filter(Insight.tab_name == tab)
+        tab_list = [t.strip() for t in tab.split(',') if t.strip()]
+        if tab_list:
+            query = query.filter(Insight.tab_name.in_(tab_list))
     
     if product:
-        products = product.split(',')
-        query = query.filter(Insight.product.in_(products))
+        product_list = [p.strip() for p in product.split(',') if p.strip()]
+        if product_list:
+            query = query.filter(Insight.product.in_(product_list))
     
     if search:
         query = query.filter(Insight.insight_name.ilike(f"%{search}%"))
     
+    if incomplete_only:
+        from sqlalchemy import and_
+        incomplete_ids = db.session.query(Insight.id).join(DataPoint).outerjoin(SourceMapping).group_by(Insight.id).having(
+            db.func.sum(db.case((SourceMapping.id == None, 1), else_=0)) > 0
+        ).subquery()
+        query = query.filter(Insight.id.in_(db.session.query(incomplete_ids)))
+
     total = query.count()
     insights = query.offset((page - 1) * per_page).limit(per_page).all()
     
@@ -265,9 +275,6 @@ def list_insights_summary():
         total_fields = len(insight.data_points)
         unmapped_fields = sum(1 for dp in insight.data_points if not dp.source_mappings)
         mapped_fields = total_fields - unmapped_fields
-        
-        if incomplete_only and unmapped_fields == 0:
-            continue
         
         results.append({
             "id": insight.id,

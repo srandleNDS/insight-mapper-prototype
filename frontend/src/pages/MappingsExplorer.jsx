@@ -9,8 +9,10 @@ export default function MappingsExplorer() {
   const [viewMode, setViewMode] = useState('grouped');
   const [expandedRows, setExpandedRows] = useState({});
   const [expandedData, setExpandedData] = useState({});
-  const [page] = useState(1);
-  const { filters } = useFilters() || { filters: { tabName: [], filterContext: [], sourceType: [], product: [], incompleteOnly: false } };
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const { filters } = useFilters() || { filters: { tabName: [], product: [], incompleteOnly: false } };
 
   const fetchData = React.useCallback(async () => {
     try {
@@ -25,16 +27,25 @@ export default function MappingsExplorer() {
       if (filters.product && filters.product.length > 0) {
         params.set('product', filters.product.join(','));
       }
+      if (filters.tabName && filters.tabName.length > 0) {
+        params.set('tab', filters.tabName.join(','));
+      }
       
       const res = await fetch(`/api/insight/list?${params}`);
       const json = await res.json();
       setData(json.data || []);
+      setTotalPages(json.totalPages || 1);
+      setTotal(json.total || 0);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching data:', err);
       setLoading(false);
     }
-  }, [page, filters.incompleteOnly, filters.product, searchParams]);
+  }, [page, filters.incompleteOnly, filters.product, filters.tabName, searchParams]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters.incompleteOnly, filters.product, filters.tabName, searchParams]);
 
   useEffect(() => {
     fetchData();
@@ -62,20 +73,6 @@ export default function MappingsExplorer() {
     }
   };
 
-  let filteredData = data;
-
-  if (filters.tabName.length > 0) {
-    filteredData = filteredData.filter(d => 
-      filters.tabName.includes(d.tabName)
-    );
-  }
-
-  if (filters.product && filters.product.length > 0) {
-    filteredData = filteredData.filter(d => 
-      filters.product.includes(d.product)
-    );
-  }
-
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center h-64">
@@ -89,7 +86,12 @@ export default function MappingsExplorer() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Mappings Explorer</h1>
-          <p className="text-sm text-gray-500 mt-1">Browse and analyze data visualization mappings</p>
+          <p className="text-sm text-gray-500 mt-1">
+            {total} visualization{total !== 1 ? 's' : ''} found
+            {(filters.tabName.length > 0 || filters.product.length > 0 || filters.incompleteOnly) && (
+              <span className="text-[#18A69B] ml-1">(filtered)</span>
+            )}
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <select 
@@ -123,7 +125,7 @@ export default function MappingsExplorer() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredData.map((insight) => {
+            {data.map((insight) => {
               const fieldCount = insight.totalFields || 0;
               const unmappedCount = insight.unmappedFields || 0;
               const isExpanded = expandedRows[insight.id];
@@ -196,7 +198,7 @@ export default function MappingsExplorer() {
                   
                   {isExpanded && (
                     <tr className="bg-gray-50/50">
-                      <td colSpan={6} className="px-6 py-4">
+                      <td colSpan={7} className="px-6 py-4">
                         <div className="ml-8 space-y-2">
                           <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Data Points</div>
                           {!insightDetail ? (
@@ -244,7 +246,7 @@ export default function MappingsExplorer() {
           </tbody>
         </table>
 
-        {filteredData.length === 0 && (
+        {data.length === 0 && (
           <div className="p-12 text-center">
             <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -253,6 +255,30 @@ export default function MappingsExplorer() {
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            Page {page} of {totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

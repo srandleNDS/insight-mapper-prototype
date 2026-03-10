@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useFilters } from '../components/Layout';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -11,16 +12,24 @@ export default function Dashboard() {
   });
   const [recentViz, setRecentViz] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { filters } = useFilters() || { filters: { tabName: [], product: [], incompleteOnly: false } };
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = React.useCallback(async () => {
     try {
+      const params = new URLSearchParams({ per_page: '10' });
+      if (filters.product && filters.product.length > 0) {
+        params.set('product', filters.product.join(','));
+      }
+      if (filters.tabName && filters.tabName.length > 0) {
+        params.set('tab', filters.tabName.join(','));
+      }
+      if (filters.incompleteOnly) {
+        params.set('incomplete_only', 'true');
+      }
+
       const [statsRes, listRes] = await Promise.all([
         fetch('/api/stats'),
-        fetch('/api/insight/list?per_page=5')
+        fetch(`/api/insight/list?${params}`)
       ]);
       
       const statsData = await statsRes.json();
@@ -40,7 +49,11 @@ export default function Dashboard() {
       console.error('Error fetching dashboard data:', err);
       setLoading(false);
     }
-  };
+  }, [filters.product, filters.tabName, filters.incompleteOnly]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   if (loading) {
     return (
@@ -50,11 +63,16 @@ export default function Dashboard() {
     );
   }
 
+  const hasActiveFilters = filters.tabName.length > 0 || filters.product.length > 0 || filters.incompleteOnly;
+
   return (
     <div className="p-8 space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Overview of your data visualization mappings</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Overview of your data visualization mappings
+          {hasActiveFilters && <span className="text-[#18A69B] ml-1">(filtered)</span>}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -87,24 +105,30 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-900">Recent Visualizations</h2>
+            <h2 className="text-lg font-bold text-gray-900">
+              {hasActiveFilters ? 'Filtered Visualizations' : 'Recent Visualizations'}
+            </h2>
             <Link to="/explorer" className="text-sm text-[#18A69B] font-medium hover:underline">View all</Link>
           </div>
           <div className="space-y-3">
-            {recentViz.map((viz, idx) => (
-              <Link 
-                key={viz.id || idx}
-                to={`/visualization/${viz.id}`}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${viz.unmappedFields > 0 ? 'bg-orange-400' : 'bg-[#18A69B]'}`}></div>
-                  <span className="font-medium text-gray-800 group-hover:text-[#18A69B]">{viz.insightName}</span>
-                  <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500">{viz.tabName || 'General'}</span>
-                </div>
-                <span className="text-xs text-gray-400">{viz.totalFields || 0} fields</span>
-              </Link>
-            ))}
+            {recentViz.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">No visualizations match the current filters</p>
+            ) : (
+              recentViz.map((viz, idx) => (
+                <Link 
+                  key={viz.id || idx}
+                  to={`/visualization/${viz.id}`}
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${viz.unmappedFields > 0 ? 'bg-orange-400' : 'bg-[#18A69B]'}`}></div>
+                    <span className="font-medium text-gray-800 group-hover:text-[#18A69B]">{viz.insightName}</span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500">{viz.tabName || 'General'}</span>
+                  </div>
+                  <span className="text-xs text-gray-400">{viz.totalFields || 0} fields</span>
+                </Link>
+              ))
+            )}
           </div>
         </div>
 
