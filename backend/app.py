@@ -3,7 +3,7 @@ import csv
 import io
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from models import db, Insight, DataPoint, SourceMapping
+from models import db, Insight, DataPoint, SourceMapping, UploadedSource
 
 app = Flask(__name__)
 CORS(app)
@@ -833,6 +833,363 @@ def import_source_data():
         return jsonify({"error": "Import failed. Database has been rolled back."}), 500
 
 
+SOURCE_UPLOAD_COLUMNS = ['Source Name', 'Source Type', 'Table', 'Column', 'Data Type']
+
+
+@app.route("/api/import/source-upload", methods=["POST"])
+def upload_raw_source():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files['file']
+    if not file.filename.lower().endswith('.csv'):
+        return jsonify({"error": "Only CSV files are supported"}), 400
+
+    rows, columns = _parse_csv_upload(file)
+
+    col_map = {}
+    for col in columns:
+        cl = col.lower().strip()
+        if cl in ('source name', 'source_name', 'source system', 'source'):
+            col_map['source_name'] = col
+        elif cl in ('source type', 'source_type', 'type'):
+            col_map['source_type'] = col
+        elif cl in ('table', 'table name', 'table_name', 'source table'):
+            col_map['table_name'] = col
+        elif cl in ('column', 'column name', 'column_name', 'source column', 'source column name', 'field', 'field name'):
+            col_map['column_name'] = col
+        elif cl in ('data type', 'data_type', 'datatype', 'source data type'):
+            col_map['data_type'] = col
+
+    if 'source_name' not in col_map or 'table_name' not in col_map or 'column_name' not in col_map:
+        missing = []
+        if 'source_name' not in col_map:
+            missing.append('Source Name')
+        if 'table_name' not in col_map:
+            missing.append('Table')
+        if 'column_name' not in col_map:
+            missing.append('Column')
+        return jsonify({"error": f"Missing required columns: {', '.join(missing)}. Found columns: {', '.join(columns)}"}), 400
+
+    import uuid
+    batch_id = str(uuid.uuid4())[:8]
+    records_created = 0
+
+    try:
+        for i, row in enumerate(rows):
+            src_name = row.get(col_map['source_name'], '').strip()
+            src_type = row.get(col_map.get('source_type', ''), '').strip() if 'source_type' in col_map else ''
+            tbl = row.get(col_map['table_name'], '').strip()
+            col_name = row.get(col_map['column_name'], '').strip()
+            d_type = row.get(col_map.get('data_type', ''), '').strip() if 'data_type' in col_map else ''
+
+            if not src_name or not col_name:
+                continue
+
+            us = UploadedSource(
+                source_name=src_name,
+                source_type=src_type,
+                table_name=tbl,
+                column_name=col_name,
+                data_type=d_type,
+                upload_batch=batch_id,
+                status='pending'
+            )
+            db.session.add(us)
+            records_created += 1
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "batchId": batch_id,
+            "recordsCreated": records_created,
+            "totalRows": len(rows)
+        })
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Source upload error: {e}")
+        return jsonify({"error": "Upload failed"}), 500
+
+
+@app.route("/api/import/source-upload/batches")
+def list_source_batches():
+    batches = db.session.query(
+        UploadedSource.upload_batch,
+        UploadedSource.source_name,
+        db.func.count(UploadedSource.id).label('total'),
+        db.func.count(db.case(
+            (UploadedSource.status == 'pending', 1)
+        )).label('pending'),
+        db.func.count(db.case(
+            (UploadedSource.status == 'suggested', 1)
+        )).label('suggested'),
+        db.func.count(db.case(
+            (UploadedSource.status == 'approved', 1)
+        )).label('approved'),
+        db.func.count(db.case(
+            (UploadedSource.status == 'no_match', 1)
+        )).label('no_match'),
+    ).group_by(UploadedSource.upload_batch, UploadedSource.source_name).all()
+
+    result = {}
+    for row in batches:
+        bid = row.upload_batch
+        if bid not in result:
+            result[bid] = {"batchId": bid, "sources": [], "total": 0, "pending": 0, "suggested": 0, "approved": 0, "noMatch": 0}
+        result[bid]["sources"].append(row.source_name)
+        result[bid]["total"] += row.total
+        result[bid]["pending"] += row.pending
+        result[bid]["suggested"] += row.suggested
+        result[bid]["approved"] += row.approved
+        result[bid]["noMatch"] += row.no_match
+
+    for bid in result:
+        result[bid]["sources"] = list(set(result[bid]["sources"]))
+
+    return jsonify(list(result.values()))
+
+
+@app.route("/api/import/source-upload/<batch_id>")
+def get_source_batch(batch_id):
+    records = UploadedSource.query.filter_by(upload_batch=batch_id).all()
+    items = []
+    for r in records:
+        item = {
+            "id": r.id,
+            "sourceName": r.source_name,
+            "sourceType": r.source_type,
+            "tableName": r.table_name,
+            "columnName": r.column_name,
+            "dataType": r.data_type,
+            "status": r.status,
+            "aiConfidence": r.ai_confidence,
+            "aiReasoning": r.ai_reasoning,
+            "aiSuggestedDataPointId": r.ai_suggested_data_point_id,
+            "aiSuggestedVizName": r.ai_suggested_viz_name,
+            "aiSuggestedFieldName": r.ai_suggested_field_name,
+        }
+        items.append(item)
+    return jsonify(items)
+
+
+@app.route("/api/import/source-upload/<batch_id>/predict", methods=["POST"])
+def predict_batch_mappings(batch_id):
+    from ai_service import predict_source_mappings
+
+    records = UploadedSource.query.filter_by(upload_batch=batch_id, status='pending').all()
+    if not records:
+        return jsonify({"error": "No pending records in this batch"}), 400
+
+    source_fields = []
+    for r in records:
+        source_fields.append({
+            "id": r.id,
+            "source_name": r.source_name,
+            "source_type": r.source_type or '',
+            "table_name": r.table_name or '',
+            "column_name": r.column_name or '',
+            "data_type": r.data_type or ''
+        })
+
+    data_points = db.session.query(
+        DataPoint.id,
+        DataPoint.name,
+        DataPoint.ent_table,
+        DataPoint.ent_field,
+        DataPoint.ent_type,
+        Insight.insight_name
+    ).join(Insight).limit(200).all()
+
+    dp_list = []
+    for dp in data_points:
+        dp_list.append({
+            "id": dp.id,
+            "name": dp.name,
+            "ent_table": dp.ent_table or '',
+            "ent_field": dp.ent_field or '',
+            "ent_type": dp.ent_type or '',
+            "viz_name": dp.insight_name
+        })
+
+    try:
+        chunk_size = 30
+        all_ai_mappings = []
+        summary = ""
+
+        for i in range(0, len(source_fields), chunk_size):
+            chunk = source_fields[i:i+chunk_size]
+            ai_result = predict_source_mappings(chunk, dp_list)
+            all_ai_mappings.extend(ai_result.get("mappings", []))
+            if ai_result.get("summary"):
+                summary = ai_result["summary"]
+
+        mapping_lookup = {}
+        for m in all_ai_mappings:
+            key = (m.get("source_table", ""), m.get("source_column", ""))
+            if key not in mapping_lookup:
+                mapping_lookup[key] = m
+
+        valid_dp_ids = set(dp['id'] for dp in dp_list)
+
+        matched = 0
+        for r in records:
+            key = (r.table_name, r.column_name)
+            m = mapping_lookup.get(key)
+            suggested_id = m.get("matched_data_point_id") if m else None
+            if suggested_id and suggested_id in valid_dp_ids:
+                r.ai_suggested_data_point_id = suggested_id
+                r.ai_suggested_viz_name = m.get("matched_viz_name", "")
+                r.ai_suggested_field_name = m.get("matched_field_name", "")
+                r.ai_confidence = m.get("confidence", "low")
+                r.ai_reasoning = m.get("reasoning", "")
+                r.status = 'suggested'
+                matched += 1
+            else:
+                r.ai_confidence = m.get("confidence", "none") if m else "none"
+                r.ai_reasoning = m.get("reasoning", "No matching data point found") if m else "No matching data point found"
+                r.status = 'no_match'
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "totalProcessed": len(records),
+            "matched": matched,
+            "unmatched": len(records) - matched,
+            "summary": summary
+        })
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"AI prediction error: {e}")
+        return jsonify({"error": "AI prediction failed. Please try again."}), 500
+
+
+@app.route("/api/import/source-upload/approve", methods=["POST"])
+def approve_mapping():
+    data = _get_json_or_400()
+    if isinstance(data, tuple):
+        return data
+
+    record_id = data.get("recordId")
+    data_point_id = data.get("dataPointId")
+
+    record = UploadedSource.query.get(record_id)
+    if not record:
+        return jsonify({"error": "Record not found"}), 404
+
+    dp = DataPoint.query.get(data_point_id)
+    if not dp:
+        return jsonify({"error": "Data point not found"}), 404
+
+    existing = SourceMapping.query.filter_by(
+        data_point_id=dp.id,
+        source_system=record.source_name,
+        table=record.table_name,
+        field=record.column_name
+    ).first()
+
+    if existing:
+        record.status = 'approved'
+        record.mapped_data_point_id = dp.id
+        db.session.commit()
+        return jsonify({"success": True, "message": "Mapping already exists, record marked as approved"})
+
+    sm = SourceMapping(
+        data_point_id=dp.id,
+        source_system=record.source_name,
+        source_name=record.column_name,
+        table=record.table_name,
+        field=record.column_name,
+        data_type=record.data_type,
+        source_type=record.source_type
+    )
+    db.session.add(sm)
+    record.status = 'approved'
+    record.mapped_data_point_id = dp.id
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Mapping created and approved"})
+
+
+@app.route("/api/import/source-upload/approve-batch", methods=["POST"])
+def approve_batch_mappings():
+    data = _get_json_or_400()
+    if isinstance(data, tuple):
+        return data
+
+    record_ids = data.get("recordIds", [])
+    if not record_ids:
+        return jsonify({"error": "No records specified"}), 400
+
+    approved = 0
+    skipped = 0
+    errors = []
+
+    for rid in record_ids:
+        record = UploadedSource.query.get(rid)
+        if not record or not record.ai_suggested_data_point_id:
+            skipped += 1
+            continue
+
+        dp = DataPoint.query.get(record.ai_suggested_data_point_id)
+        if not dp:
+            errors.append(f"Data point {record.ai_suggested_data_point_id} not found for record {rid}")
+            continue
+
+        existing = SourceMapping.query.filter_by(
+            data_point_id=dp.id,
+            source_system=record.source_name,
+            table=record.table_name,
+            field=record.column_name
+        ).first()
+
+        if not existing:
+            sm = SourceMapping(
+                data_point_id=dp.id,
+                source_system=record.source_name,
+                source_name=record.column_name,
+                table=record.table_name,
+                field=record.column_name,
+                data_type=record.data_type,
+                source_type=record.source_type
+            )
+            db.session.add(sm)
+
+        record.status = 'approved'
+        record.mapped_data_point_id = dp.id
+        approved += 1
+
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "approved": approved,
+        "skipped": skipped,
+        "errors": errors
+    })
+
+
+@app.route("/api/import/source-upload/reject", methods=["POST"])
+def reject_mapping():
+    data = _get_json_or_400()
+    if isinstance(data, tuple):
+        return data
+
+    record_id = data.get("recordId")
+    record = UploadedSource.query.get(record_id)
+    if not record:
+        return jsonify({"error": "Record not found"}), 404
+
+    record.status = 'rejected'
+    record.ai_suggested_data_point_id = None
+    record.ai_suggested_viz_name = None
+    record.ai_suggested_field_name = None
+    db.session.commit()
+
+    return jsonify({"success": True})
+
+
 @app.route("/api/import/template/<template_type>")
 def download_template(template_type):
     if template_type == 'product':
@@ -859,6 +1216,9 @@ def download_template(template_type):
         example = ['InsightFlow', 'Dashboard', 'Total Revenue',
                    'total_amount', 'PMS', 'WebPT', 'billing',
                    'total_charge', 'decimal', 'dbo.Billing', 'TotalCharge', 'money']
+    elif template_type == 'source-data':
+        columns = ['Source Name', 'Source Type', 'Table', 'Column', 'Data Type']
+        example = ['WebPT', 'PMS', 'billing', 'total_charge', 'decimal']
     else:
         return jsonify({"error": "Invalid template type"}), 400
 

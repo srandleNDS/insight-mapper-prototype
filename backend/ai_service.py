@@ -165,6 +165,74 @@ Provide:
     return response.choices[0].message.content
 
 
+def predict_source_mappings(source_fields, product_data_points):
+    client = get_client()
+
+    source_list = []
+    for sf in source_fields:
+        source_list.append(f"  {sf['source_name']} | {sf['table_name']}.{sf['column_name']} ({sf['data_type']})")
+    source_str = "\n".join(source_list)
+
+    dp_list = []
+    for dp in product_data_points[:150]:
+        dp_list.append(f"  ID:{dp['id']} | \"{dp['viz_name']}\" | {dp['name']} | {dp['ent_table']}.{dp['ent_field']} ({dp['ent_type']})")
+    dp_str = "\n".join(dp_list)
+
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[
+            {
+                "role": "system",
+                "content": """You are a healthcare data mapping expert. Your job is to predict which source database fields map to which enterprise data dictionary fields based on naming conventions, data types, table structures, and domain knowledge.
+
+Rules for matching:
+- Match source columns to enterprise data points based on semantic similarity of names
+- Consider table context (e.g., source table "billing" likely maps to enterprise fields about revenue/charges)
+- Data type compatibility matters (varchar->varchar, int->int, decimal->money, etc.)
+- Use healthcare domain knowledge (e.g., CPT codes, ICD codes, patient demographics, claims, billing)
+- A source field can map to multiple data points if appropriate
+- Not every source field will have a match - mark those as "none"
+- Be conservative - only suggest high confidence matches unless there's reasonable evidence"""
+            },
+            {
+                "role": "user",
+                "content": f"""Predict mappings between these source fields and product data points.
+
+SOURCE FIELDS (to be mapped FROM):
+{source_str}
+
+PRODUCT DATA POINTS (to be mapped TO):
+{dp_str}
+
+For each source field, return the best matching data point(s). Return a JSON object:
+{{
+  "mappings": [
+    {{
+      "source_table": "source_table_name",
+      "source_column": "source_column_name",
+      "matched_data_point_id": 123 or null,
+      "matched_viz_name": "visualization name" or null,
+      "matched_field_name": "field name" or null,
+      "confidence": "high" | "medium" | "low" | "none",
+      "reasoning": "brief explanation of why this match was chosen"
+    }}
+  ],
+  "summary": "brief overall analysis of the mapping quality"
+}}"""
+            }
+        ],
+        response_format={"type": "json_object"},
+        max_completion_tokens=4096
+    )
+    content = response.choices[0].message.content
+    if not content or not content.strip():
+        return {"mappings": [], "summary": "AI returned empty response"}
+    try:
+        return json.loads(content)
+    except json.JSONDecodeError:
+        return {"mappings": [], "summary": f"AI response could not be parsed: {content[:200]}"}
+
+
 def ai_chat(message, context):
     client = get_client()
 

@@ -20,6 +20,7 @@ A full-stack application for searching and exploring data insights with their da
       VisualizationDetail.jsx - Detail view with tabs and AI features
       AuditPage.jsx   - Audit and changes tracking
       ImportPage.jsx  - Bulk CSV import (product data + source mappings)
+      SourceMappingPage.jsx - AI-powered source-to-product mapping
     App.js            - React Router configuration
     index.js          - Entry point
   /public
@@ -70,6 +71,7 @@ Current database statistics:
 3. **Visualization Detail** (`/visualization/:id`) - Tabs: Overview, Fields (with AI Suggest), Lineage (with AI Analysis), Calculations (with AI Explain)
 4. **Audit & Changes** (`/audit`) - Track mapping changes and data lineage updates
 5. **Bulk Import** (`/import`) - CSV upload for product data and source mappings with preview/validation
+6. **AI Source Mapping** (`/source-mapping`) - Upload raw source data, AI predicts mappings to product data points, review and approve
 
 ## API Endpoints
 - `GET /api/stats` - Get aggregate statistics
@@ -86,12 +88,20 @@ Current database statistics:
 - `POST /api/import/preview` - Preview CSV file before import
 - `POST /api/import/product` - Import product data (visualizations + data points)
 - `POST /api/import/source` - Import source mappings
-- `GET /api/import/template/:type` - Download CSV template (product or source)
+- `GET /api/import/template/:type` - Download CSV template (product, source, or source-data)
+- `POST /api/import/source-upload` - Upload raw source data CSV
+- `GET /api/import/source-upload/batches` - List all upload batches
+- `GET /api/import/source-upload/:batchId` - Get batch records
+- `POST /api/import/source-upload/:batchId/predict` - Run AI mapping prediction
+- `POST /api/import/source-upload/approve` - Approve single mapping
+- `POST /api/import/source-upload/approve-batch` - Approve all high/medium confidence mappings
+- `POST /api/import/source-upload/reject` - Reject a suggested mapping
 
 ## Database Models
 - **Insight**: id, insight_name, tab_name, calculation, products_used_in, product
 - **DataPoint**: id, insight_id, name, ent_table, ent_field, ent_type, calculation
 - **SourceMapping**: id, data_point_id, source_system, source_name, table, field, data_type, source_type, dd_table, dd_field, dd_type
+- **UploadedSource**: id, source_name, source_type, table_name, column_name, data_type, upload_batch, status, mapped_data_point_id, ai_confidence, ai_reasoning, ai_suggested_data_point_id, ai_suggested_viz_name, ai_suggested_field_name
 
 ## Environment Variables
 - `DATABASE_URL` - PostgreSQL connection string (auto-configured by Replit)
@@ -105,3 +115,7 @@ Current database statistics:
 - VisualizationDetail.jsx enhanced with AI buttons on Fields, Lineage, and Calculations tabs
 - Loaded data from 11 data dictionary files including AscendGP (Excel format)
 - Added Product filter (server-side) and product breakdown throughout UI
+- Added AI Source Mapping page: upload raw source data, AI predicts mappings to existing product data points
+- UploadedSource model stores raw source fields with batch tracking
+- AI prediction uses GPT-5 to match source fields to enterprise data points by name/type/context similarity
+- Approve/reject workflow creates SourceMapping records from approved predictions

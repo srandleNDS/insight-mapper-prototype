@@ -49,3 +49,24 @@ class SourceMapping(db.Model):
     dd_type = db.Column(db.String(100))
     
     data_point = db.relationship('DataPoint', back_populates='source_mappings')
+
+
+class UploadedSource(db.Model):
+    __tablename__ = 'uploaded_sources'
+
+    id = db.Column(db.Integer, primary_key=True)
+    source_name = db.Column(db.String(200), nullable=False)
+    source_type = db.Column(db.String(100))
+    table_name = db.Column(db.String(300))
+    column_name = db.Column(db.String(300))
+    data_type = db.Column(db.String(100))
+    upload_batch = db.Column(db.String(100))
+    status = db.Column(db.String(50), default='pending')
+    mapped_data_point_id = db.Column(db.Integer, db.ForeignKey('data_points.id'), nullable=True)
+    ai_confidence = db.Column(db.String(20))
+    ai_reasoning = db.Column(db.Text)
+    ai_suggested_data_point_id = db.Column(db.Integer, nullable=True)
+    ai_suggested_viz_name = db.Column(db.String(500))
+    ai_suggested_field_name = db.Column(db.String(300))
+
+    mapped_data_point = db.relationship('DataPoint', foreign_keys=[mapped_data_point_id])

@@ -106,6 +106,12 @@ export default function Layout() {
                 >
                   Import
                 </NavLink>
+                <NavLink 
+                  to="/source-mapping" 
+                  className={({isActive}) => `px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${isActive ? 'bg-[#18A69B]/10 text-[#18A69B]' : 'text-gray-600 hover:bg-gray-100'}`}
+                >
+                  AI Mapping
+                </NavLink>
               </nav>
             </div>
 

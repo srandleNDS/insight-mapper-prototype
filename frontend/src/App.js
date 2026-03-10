@@ -6,6 +6,7 @@ import MappingsExplorer from './pages/MappingsExplorer';
 import VisualizationDetail from './pages/VisualizationDetail';
 import AuditPage from './pages/AuditPage';
 import ImportPage from './pages/ImportPage';
+import SourceMappingPage from './pages/SourceMappingPage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="visualization/:id" element={<VisualizationDetail />} />
           <Route path="audit" element={<AuditPage />} />
           <Route path="import" element={<ImportPage />} />
+          <Route path="source-mapping" element={<SourceMappingPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
