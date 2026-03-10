@@ -85,29 +85,35 @@ export default function ImportPage() {
   };
 
   const productColumns = [
-    { name: 'Product', desc: 'Product name (e.g. InsightFlow)' },
-    { name: 'Tab Name', desc: 'Dashboard tab category' },
-    { name: 'Data Visualization', desc: 'Name of the visualization' },
-    { name: 'Data Viz Calculation', desc: 'SQL or formula (optional)' },
-    { name: 'Enterprise DD Table', desc: 'Enterprise data dictionary table' },
-    { name: 'Enterprise DD Field', desc: 'Enterprise field name' },
+    { name: 'Product', desc: 'Product name (required)', required: true },
+    { name: 'Tab Name', desc: 'Dashboard tab category (required)', required: true },
+    { name: 'Data Visualization', desc: 'Name of the visualization (required)', required: true },
+    { name: 'Data Viz Calculation', desc: 'SQL or formula' },
+    { name: 'Enterprise Data Dictionary Table', desc: 'Enterprise DD table name' },
+    { name: 'Enterprise Data Dictionary Field', desc: 'Enterprise DD field name (or "Data Point")' },
     { name: 'Enterprise DD Data Type', desc: 'Data type (e.g. varchar, int)' },
+    { name: 'Data Point Calculation', desc: 'Field-level calculation' },
+    { name: 'Data Dictionary Table', desc: 'DD table name' },
+    { name: 'Data Dictionary Field', desc: 'DD field name' },
+    { name: 'Source Type', desc: 'Source type (e.g. PMS, EHR)' },
+    { name: 'Source Data Collection', desc: 'Source system name' },
+    { name: 'Source Table', desc: 'Source table name' },
+    { name: 'Source Column Name', desc: 'Source column name' },
+    { name: 'Source Data Type', desc: 'Source data type' },
   ];
 
   const sourceColumns = [
-    { name: 'Product', desc: 'Product name to match' },
-    { name: 'Tab Name', desc: 'Tab category' },
-    { name: 'Data Visualization', desc: 'Visualization to map to' },
-    { name: 'Data Point Field', desc: 'Field name to attach source to' },
-    { name: 'Source System', desc: 'Source system name (e.g. WebPT)' },
-    { name: 'Source Type', desc: 'Type of source (e.g. PMS, EHR)' },
-    { name: 'Source Data Collection', desc: 'Collection/database name' },
-    { name: 'Source Table', desc: 'Source table name' },
-    { name: 'Source Column', desc: 'Source column name' },
+    { name: 'Product', desc: 'Product name to match (required)', required: true },
+    { name: 'Tab Name', desc: 'Tab category (required)', required: true },
+    { name: 'Data Visualization', desc: 'Visualization to map to (required)', required: true },
+    { name: 'Source Type', desc: 'Type of source (required)', required: true },
+    { name: 'Source Data Collection', desc: 'Source system name (required)', required: true },
+    { name: 'Source Table', desc: 'Source table name (required)', required: true },
+    { name: 'Source Column Name', desc: 'Source column name' },
     { name: 'Source Data Type', desc: 'Source data type' },
-    { name: 'DD Table', desc: 'Data dictionary table' },
-    { name: 'DD Field', desc: 'Data dictionary field' },
-    { name: 'DD Data Type', desc: 'Data dictionary type' },
+    { name: 'Data Dictionary Table', desc: 'DD table' },
+    { name: 'Data Dictionary Field', desc: 'DD field' },
+    { name: 'DD Data Type', desc: 'DD data type' },
   ];
 
   const columns = importType === 'product' ? productColumns : sourceColumns;
@@ -344,8 +350,8 @@ export default function ImportPage() {
                       <p className="text-xs text-gray-500">Data Points Created</p>
                     </div>
                     <div className="bg-gray-50 rounded-lg p-3 text-center">
-                      <p className="text-xl font-bold text-gray-400">{result.errors?.length || 0}</p>
-                      <p className="text-xs text-gray-500">Errors</p>
+                      <p className="text-xl font-bold text-indigo-600">{result.sourceMappingsCreated || 0}</p>
+                      <p className="text-xs text-gray-500">Source Mappings</p>
                     </div>
                   </>
                 ) : (
@@ -389,13 +395,13 @@ export default function ImportPage() {
 
         <div className="space-y-4">
           <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="font-bold text-gray-900 mb-3">Required Columns</h3>
+            <h3 className="font-bold text-gray-900 mb-3">Expected Columns</h3>
             <div className="space-y-2">
               {columns.map(col => (
                 <div key={col.name} className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#18A69B] mt-1.5 flex-shrink-0"></span>
+                  <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${col.required ? 'bg-[#18A69B]' : 'bg-gray-300'}`}></span>
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{col.name}</p>
+                    <p className={`text-sm ${col.required ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>{col.name}</p>
                     <p className="text-xs text-gray-500">{col.desc}</p>
                   </div>
                 </div>

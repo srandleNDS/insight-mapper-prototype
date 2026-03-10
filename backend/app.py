@@ -508,17 +508,38 @@ def ai_chat_endpoint():
         return jsonify({"error": "Failed to process your message. Please try again."}), 500
 
 
-PRODUCT_CSV_COLUMNS = [
+PRODUCT_REQUIRED_FIELDS = ['Product', 'Tab Name', 'Data Visualization']
+
+SOURCE_REQUIRED_FIELDS = ['Product', 'Tab Name', 'Data Visualization', 'Source Type', 'Source Data Collection', 'Source Table']
+
+PRODUCT_RECOGNIZED_COLUMNS = [
     'Product', 'Tab Name', 'Data Visualization', 'Data Viz Calculation',
-    'Enterprise DD Table', 'Enterprise DD Field', 'Enterprise DD Data Type'
+    'Enterprise Data Dictionary Table', 'Enterprise Data Dictionary Field',
+    'Enterprise DD Data Type', 'Enterprise DD Table', 'Enterprise DD Field',
+    'Data Point', 'Data Point Calculation',
+    'Data Dictionary Table', 'Data Dictionary Field', 'DD Data Type',
+    'Source Type', 'Source Data Collection', 'Source Table',
+    'Source Column Name', 'Source Data Type'
 ]
 
-SOURCE_CSV_COLUMNS = [
-    'Product', 'Tab Name', 'Data Visualization', 'Data Point Field',
+SOURCE_RECOGNIZED_COLUMNS = [
+    'Product', 'Tab Name', 'Data Visualization',
+    'Enterprise Data Dictionary Table', 'Enterprise Data Dictionary Field',
+    'Enterprise DD Data Type', 'Enterprise DD Table', 'Enterprise DD Field',
+    'Data Point', 'Data Point Calculation', 'Data Point Field',
+    'Data Dictionary Table', 'Data Dictionary Field', 'DD Data Type',
     'Source System', 'Source Type', 'Source Data Collection',
-    'Source Table', 'Source Column', 'Source Data Type',
-    'DD Table', 'DD Field', 'DD Data Type'
+    'Source Table', 'Source Column Name', 'Source Column',
+    'Source Data Type'
 ]
+
+
+def _get_field(row, *keys):
+    for key in keys:
+        val = row.get(key, '').strip()
+        if val:
+            return val
+    return ''
 
 
 def _parse_csv_upload(file_storage):
@@ -529,8 +550,12 @@ def _parse_csv_upload(file_storage):
         content = file_storage.read().decode('latin-1')
     reader = csv.DictReader(io.StringIO(content))
     rows = list(reader)
-    columns = reader.fieldnames or []
+    columns = [c for c in (reader.fieldnames or []) if c and c.strip()]
     return rows, columns
+
+
+def _check_required_columns(columns, required):
+    return [c for c in required if c not in columns]
 
 
 @app.route("/api/import/preview", methods=["POST"])
@@ -547,11 +572,14 @@ def import_preview():
     rows, columns = _parse_csv_upload(file)
 
     if import_type == 'product':
-        expected = PRODUCT_CSV_COLUMNS
+        required = PRODUCT_REQUIRED_FIELDS
+        recognized = PRODUCT_RECOGNIZED_COLUMNS
     else:
-        expected = SOURCE_CSV_COLUMNS
+        required = SOURCE_REQUIRED_FIELDS
+        recognized = SOURCE_RECOGNIZED_COLUMNS
 
-    missing = [c for c in expected if c not in columns]
+    missing_required = _check_required_columns(columns, required)
+    matched = [c for c in columns if c in recognized]
 
     preview_rows = rows[:10]
 
@@ -561,12 +589,14 @@ def import_preview():
     return jsonify({
         "totalRows": len(rows),
         "columns": columns,
-        "expectedColumns": expected,
-        "missingColumns": missing,
+        "expectedColumns": required,
+        "recognizedColumns": recognized,
+        "matchedColumns": matched,
+        "missingColumns": missing_required,
         "preview": preview_rows,
         "products": sorted(products),
         "visualizations": len(viz_names),
-        "valid": len(missing) == 0
+        "valid": len(missing_required) == 0
     })
 
 
@@ -580,13 +610,14 @@ def import_product_data():
         return jsonify({"error": "Only CSV files are supported"}), 400
 
     rows, columns = _parse_csv_upload(file)
-    missing = [c for c in PRODUCT_CSV_COLUMNS if c not in columns]
+    missing = _check_required_columns(columns, PRODUCT_REQUIRED_FIELDS)
     if missing:
         return jsonify({"error": f"Missing required columns: {', '.join(missing)}"}), 400
 
     insights_created = 0
     insights_updated = 0
     datapoints_created = 0
+    source_mappings_created = 0
     errors = []
 
     insights_cache = {}
@@ -597,16 +628,26 @@ def import_product_data():
             tab_name = row.get('Tab Name', '').strip()
             viz_name = row.get('Data Visualization', '').strip()
             viz_calc = row.get('Data Viz Calculation', '').strip()
-            ent_table = row.get('Enterprise DD Table', '').strip()
-            ent_field = row.get('Enterprise DD Field', '').strip()
-            ent_type = row.get('Enterprise DD Data Type', '').strip()
+            ent_table = _get_field(row, 'Enterprise Data Dictionary Table', 'Enterprise DD Table')
+            ent_field = _get_field(row, 'Enterprise Data Dictionary Field', 'Enterprise DD Field', 'Data Point')
+            ent_type = _get_field(row, 'Enterprise DD Data Type')
+            dp_calc = _get_field(row, 'Data Point Calculation')
+            dd_table = _get_field(row, 'Data Dictionary Table')
+            dd_field = _get_field(row, 'Data Dictionary Field')
+            dd_type = _get_field(row, 'DD Data Type')
+            src_type = _get_field(row, 'Source Type')
+            src_collection = _get_field(row, 'Source Data Collection')
+            src_table = _get_field(row, 'Source Table')
+            src_column = _get_field(row, 'Source Column Name', 'Source Column')
+            src_data_type = _get_field(row, 'Source Data Type')
 
             if not viz_name:
                 errors.append(f"Row {i+2}: Missing Data Visualization name")
                 continue
 
-            if not ent_field:
-                errors.append(f"Row {i+2}: Missing Enterprise DD Field")
+            dp_name = ent_field or dd_field
+            if not dp_name:
+                errors.append(f"Row {i+2}: Missing data point field name")
                 continue
 
             cache_key = (viz_name, product)
@@ -638,19 +679,46 @@ def import_product_data():
                 insights_cache[cache_key] = insight
 
             existing_dp = DataPoint.query.filter_by(
-                insight_id=insight.id, name=ent_field
+                insight_id=insight.id, name=dp_name
             ).first()
 
             if not existing_dp:
                 dp = DataPoint(
                     insight_id=insight.id,
-                    name=ent_field,
+                    name=dp_name,
                     ent_table=ent_table,
                     ent_field=ent_field,
-                    ent_type=ent_type
+                    ent_type=ent_type,
+                    calculation=dp_calc
                 )
                 db.session.add(dp)
+                db.session.flush()
                 datapoints_created += 1
+            else:
+                dp = existing_dp
+
+            if src_table or src_column or dd_table or dd_field:
+                existing_sm = SourceMapping.query.filter_by(
+                    data_point_id=dp.id,
+                    source_system=src_collection,
+                    table=src_table or ent_table,
+                    field=src_column or ent_field
+                ).first()
+                if not existing_sm:
+                    sm = SourceMapping(
+                        data_point_id=dp.id,
+                        source_system=src_collection,
+                        source_name=src_column or dd_field,
+                        table=src_table or ent_table,
+                        field=src_column or ent_field,
+                        data_type=src_data_type or dd_type or ent_type,
+                        source_type=src_type,
+                        dd_table=dd_table,
+                        dd_field=dd_field,
+                        dd_type=dd_type
+                    )
+                    db.session.add(sm)
+                    source_mappings_created += 1
 
         db.session.commit()
 
@@ -659,6 +727,7 @@ def import_product_data():
             "insightsCreated": insights_created,
             "insightsUpdated": insights_updated,
             "dataPointsCreated": datapoints_created,
+            "sourceMappingsCreated": source_mappings_created,
             "errors": errors[:20],
             "totalRows": len(rows)
         })
@@ -678,7 +747,7 @@ def import_source_data():
         return jsonify({"error": "Only CSV files are supported"}), 400
 
     rows, columns = _parse_csv_upload(file)
-    missing = [c for c in SOURCE_CSV_COLUMNS if c not in columns]
+    missing = _check_required_columns(columns, SOURCE_REQUIRED_FIELDS)
     if missing:
         return jsonify({"error": f"Missing required columns: {', '.join(missing)}"}), 400
 
@@ -690,16 +759,16 @@ def import_source_data():
         for i, row in enumerate(rows):
             product = row.get('Product', '').strip()
             viz_name = row.get('Data Visualization', '').strip()
-            dp_field = row.get('Data Point Field', '').strip()
-            src_system = row.get('Source System', '').strip()
-            src_type = row.get('Source Type', '').strip()
-            src_collection = row.get('Source Data Collection', '').strip()
-            src_table = row.get('Source Table', '').strip()
-            src_column = row.get('Source Column', '').strip()
-            src_data_type = row.get('Source Data Type', '').strip()
-            dd_table = row.get('DD Table', '').strip()
-            dd_field = row.get('DD Field', '').strip()
-            dd_type = row.get('DD Data Type', '').strip()
+            dp_field = _get_field(row, 'Data Point Field', 'Enterprise Data Dictionary Field', 'Enterprise DD Field', 'Data Point', 'Data Dictionary Field')
+            src_system = _get_field(row, 'Source System', 'Source Data Collection')
+            src_type = _get_field(row, 'Source Type')
+            src_collection = _get_field(row, 'Source Data Collection')
+            src_table = _get_field(row, 'Source Table')
+            src_column = _get_field(row, 'Source Column Name', 'Source Column')
+            src_data_type = _get_field(row, 'Source Data Type')
+            dd_table = _get_field(row, 'DD Table', 'Data Dictionary Table')
+            dd_field = _get_field(row, 'DD Field', 'Data Dictionary Field')
+            dd_type = _get_field(row, 'DD Data Type', 'DD Type')
 
             if not viz_name or not dp_field:
                 errors.append(f"Row {i+2}: Missing Data Visualization or Data Point Field")
@@ -767,11 +836,29 @@ def import_source_data():
 @app.route("/api/import/template/<template_type>")
 def download_template(template_type):
     if template_type == 'product':
-        columns = PRODUCT_CSV_COLUMNS
-        example = ['InsightFlow', 'Dashboard', 'Total Revenue', 'SUM(Revenue)', 'fact_revenue', 'total_amount', 'decimal']
+        columns = [
+            'Product', 'Tab Name', 'Data Visualization', 'Data Viz Calculation',
+            'Enterprise Data Dictionary Table', 'Enterprise Data Dictionary Field',
+            'Enterprise DD Data Type', 'Data Point Calculation',
+            'Data Dictionary Table', 'Data Dictionary Field', 'DD Data Type',
+            'Source Type', 'Source Data Collection', 'Source Table',
+            'Source Column Name', 'Source Data Type'
+        ]
+        example = ['InsightFlow', 'Dashboard', 'Total Revenue', 'SUM(Revenue)',
+                   'fact_revenue', 'total_amount', 'decimal', '',
+                   'dbo.Revenue', 'TotalRevenue', 'money',
+                   'PMS', 'WebPT', 'billing', 'total_charge', 'decimal']
     elif template_type == 'source':
-        columns = SOURCE_CSV_COLUMNS
-        example = ['InsightFlow', 'Dashboard', 'Total Revenue', 'total_amount', 'WebPT', 'PMS', 'WebPT', 'billing', 'total_charge', 'decimal', 'dbo.Billing', 'TotalCharge', 'money']
+        columns = [
+            'Product', 'Tab Name', 'Data Visualization',
+            'Enterprise Data Dictionary Field', 'Source Type',
+            'Source Data Collection', 'Source Table', 'Source Column Name',
+            'Source Data Type', 'Data Dictionary Table', 'Data Dictionary Field',
+            'DD Data Type'
+        ]
+        example = ['InsightFlow', 'Dashboard', 'Total Revenue',
+                   'total_amount', 'PMS', 'WebPT', 'billing',
+                   'total_charge', 'decimal', 'dbo.Billing', 'TotalCharge', 'money']
     else:
         return jsonify({"error": "Invalid template type"}), 400
 
