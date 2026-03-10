@@ -287,5 +287,216 @@ def list_insights_summary():
         "totalPages": (total + per_page - 1) // per_page
     })
 
+def _get_json_or_400():
+    data = request.get_json(silent=True)
+    if data is None:
+        return None
+    return data
+
+
+@app.route("/api/ai/explain-calculation", methods=["POST"])
+def ai_explain_calculation():
+    from ai_service import explain_calculation
+    data = _get_json_or_400()
+    if data is None:
+        return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+    calculation = data.get("calculation", "")
+    viz_name = data.get("vizName", "")
+    data_points = data.get("dataPoints", [])
+
+    if not calculation:
+        return jsonify({"error": "No calculation provided"}), 400
+
+    try:
+        explanation = explain_calculation(calculation, viz_name, data_points)
+        return jsonify({"explanation": explanation})
+    except Exception as e:
+        app.logger.error(f"AI explain-calculation error: {e}")
+        return jsonify({"error": "Failed to generate explanation. Please try again."}), 500
+
+
+@app.route("/api/ai/suggest-mappings", methods=["POST"])
+def ai_suggest_mappings():
+    from ai_service import suggest_mappings
+    data = _get_json_or_400()
+    if data is None:
+        return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+    unmapped_field = data.get("fieldName", "")
+    viz_name = data.get("vizName", "")
+    tab_name = data.get("tabName", "")
+
+    if not unmapped_field:
+        return jsonify({"error": "No field name provided"}), 400
+
+    existing_mappings = []
+    insight = Insight.query.filter_by(insight_name=viz_name).first()
+    if insight:
+        for dp in insight.data_points:
+            for sm in dp.source_mappings:
+                existing_mappings.append({
+                    "field_name": dp.name,
+                    "table": sm.table or "",
+                    "column": sm.field or "",
+                    "data_type": sm.data_type or ""
+                })
+
+    source_tables = []
+    tables_query = db.session.query(
+        SourceMapping.table,
+        db.func.array_agg(db.func.distinct(SourceMapping.field))
+    ).filter(SourceMapping.table != None, SourceMapping.table != '').group_by(SourceMapping.table).limit(30).all()
+
+    for t in tables_query:
+        source_tables.append({
+            "table": t[0],
+            "columns": [c for c in t[1] if c] if t[1] else []
+        })
+
+    try:
+        suggestions = suggest_mappings(unmapped_field, viz_name, tab_name, existing_mappings, source_tables)
+        return jsonify(suggestions)
+    except Exception as e:
+        app.logger.error(f"AI suggest-mappings error: {e}")
+        return jsonify({"error": "Failed to generate mapping suggestions. Please try again."}), 500
+
+
+@app.route("/api/ai/search", methods=["POST"])
+def ai_search():
+    from ai_service import natural_language_search
+    data = _get_json_or_400()
+    if data is None:
+        return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+    query = data.get("query", "")
+
+    if not query:
+        return jsonify({"error": "No query provided"}), 400
+
+    tabs = [t[0] for t in db.session.query(Insight.tab_name).distinct().all() if t[0]]
+    products = [p[0] for p in db.session.query(Insight.product).distinct().all() if p[0]]
+
+    try:
+        search_params = natural_language_search(query, tabs, products)
+
+        search_term = search_params.get("search_term", "")
+        product_filter = search_params.get("product_filter", [])
+        tab_filter = search_params.get("tab_filter", [])
+        incomplete_only = search_params.get("incomplete_only", False)
+
+        q = Insight.query
+        if search_term:
+            q = q.filter(Insight.insight_name.ilike(f"%{search_term}%"))
+        if product_filter:
+            q = q.filter(Insight.product.in_(product_filter))
+        if tab_filter:
+            q = q.filter(Insight.tab_name.in_(tab_filter))
+
+        insights = q.limit(20).all()
+        results = []
+        for insight in insights:
+            total_fields = len(insight.data_points)
+            unmapped = sum(1 for dp in insight.data_points if not dp.source_mappings)
+            if incomplete_only and unmapped == 0:
+                continue
+            results.append({
+                "id": insight.id,
+                "insightName": insight.insight_name,
+                "tabName": insight.tab_name or "",
+                "product": insight.product or "",
+                "totalFields": total_fields,
+                "unmappedFields": unmapped,
+                "mappedFields": total_fields - unmapped
+            })
+
+        return jsonify({
+            "explanation": search_params.get("explanation", ""),
+            "filters": search_params,
+            "results": results
+        })
+    except Exception as e:
+        app.logger.error(f"AI search error: {e}")
+        return jsonify({"error": "Failed to process search query. Please try again."}), 500
+
+
+@app.route("/api/ai/analyze-lineage", methods=["POST"])
+def ai_analyze_lineage():
+    from ai_service import analyze_lineage
+    data = _get_json_or_400()
+    if data is None:
+        return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+    insight_id = data.get("insightId")
+
+    if not insight_id:
+        return jsonify({"error": "No insight ID provided"}), 400
+
+    insight = db.session.get(Insight, insight_id)
+    if not insight:
+        return jsonify({"error": "Insight not found"}), 404
+
+    data_points_with_mappings = []
+    for dp in insight.data_points:
+        mappings = []
+        for sm in dp.source_mappings:
+            mappings.append({
+                "sourceSystem": sm.source_system or "",
+                "table": sm.table or "",
+                "field": sm.field or "",
+                "dataType": sm.data_type or "",
+                "sourceType": sm.source_type or ""
+            })
+        data_points_with_mappings.append({
+            "name": dp.name,
+            "entTable": dp.ent_table or "",
+            "entField": dp.ent_field or "",
+            "sourceMappings": mappings
+        })
+
+    try:
+        analysis = analyze_lineage(insight.insight_name, data_points_with_mappings)
+        return jsonify({"analysis": analysis})
+    except Exception as e:
+        app.logger.error(f"AI analyze-lineage error: {e}")
+        return jsonify({"error": "Failed to analyze lineage. Please try again."}), 500
+
+
+@app.route("/api/ai/chat", methods=["POST"])
+def ai_chat_endpoint():
+    from ai_service import ai_chat
+    data = _get_json_or_400()
+    if data is None:
+        return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+    message = data.get("message", "")
+
+    if not message:
+        return jsonify({"error": "No message provided"}), 400
+
+    total_insights = Insight.query.count()
+    total_datapoints = DataPoint.query.count()
+    unmapped_count = db.session.query(DataPoint).outerjoin(SourceMapping).filter(SourceMapping.id == None).count()
+    mapped_count = total_datapoints - unmapped_count
+    products = [p[0] for p in db.session.query(Insight.product).distinct().all() if p[0]]
+    source_systems = [s[0] for s in db.session.query(SourceMapping.source_system).distinct().all() if s[0]]
+
+    context = {
+        "totalVisualizations": total_insights,
+        "totalFields": total_datapoints,
+        "mappedFields": mapped_count,
+        "unmappedFields": unmapped_count,
+        "products": products,
+        "sourceSystems": source_systems
+    }
+
+    try:
+        response = ai_chat(message, context)
+        return jsonify({"response": response})
+    except Exception as e:
+        app.logger.error(f"AI chat error: {e}")
+        return jsonify({"error": "Failed to process your message. Please try again."}), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="localhost", port=8000)

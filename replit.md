@@ -1,21 +1,23 @@
 # Insight Mapper
 
 ## Overview
-A full-stack application for searching and exploring data insights with their data points and source mappings. Features a multi-page React frontend with Dashboard, Mappings Explorer, Visualization Detail, and Audit pages. Connected to Flask backend and PostgreSQL. Populated with data from 10 data dictionary CSV files representing different healthcare systems.
+A full-stack application for searching and exploring data insights with their data points and source mappings. Features a multi-page React frontend with Dashboard, Mappings Explorer, Visualization Detail, and Audit pages. Connected to Flask backend and PostgreSQL. Populated with data from 11 data dictionary files representing different healthcare systems. Includes AI-powered features via Replit AI Integrations (OpenAI).
 
 ## Project Structure
 ```
 /backend              - Flask REST API
-  /app.py             - Main API routes
+  /app.py             - Main API routes (including AI endpoints)
   /models.py          - SQLAlchemy database models
+  /ai_service.py      - AI service functions (OpenAI integration)
 /frontend             - React application
   /src
     /components
       Layout.jsx      - Global layout with Top Nav and Sidebar
+      AiChat.jsx      - Floating AI chat assistant (chat + smart search modes)
     /pages
       Dashboard.jsx   - Overview dashboard with stats
       MappingsExplorer.jsx - Main data grid for visualizations
-      VisualizationDetail.jsx - Detail view with tabs
+      VisualizationDetail.jsx - Detail view with tabs and AI features
       AuditPage.jsx   - Audit and changes tracking
     App.js            - React Router configuration
     index.js          - Entry point
@@ -23,13 +25,22 @@ A full-stack application for searching and exploring data insights with their da
     index.html        - HTML template with Tailwind CDN
 /data                 - Data scripts
   /load_csv_data.py   - CSV data loader for 10 data dictionaries
-/attached_assets      - Data dictionary CSV files
+  /load_ascendgp_data.py - AscendGP Excel data loader
+/attached_assets      - Data dictionary CSV and Excel files
 ```
 
 ## Tech Stack
 - **Frontend**: React 18, React Router, Tailwind CSS (CDN)
 - **Backend**: Flask, Flask-SQLAlchemy, Flask-CORS
 - **Database**: PostgreSQL
+- **AI**: OpenAI GPT-5 via Replit AI Integrations (no user API key needed)
+
+## AI Features
+- **Calculation Explanation**: Explains SQL/data viz calculations in plain English
+- **Auto-Mapping Suggestions**: AI suggests source mappings for unmapped fields
+- **Natural Language Search**: Search visualizations using conversational queries
+- **Lineage Analysis**: AI analyzes data flow, quality concerns, and governance
+- **AI Chat Assistant**: Floating chat panel for general data questions
 
 ## Data Sources
 The application uses 11 data dictionary files:
@@ -55,15 +66,21 @@ Current database statistics:
 ## Pages
 1. **Dashboard** (`/`) - Overview with stats, recent visualizations, quick actions
 2. **Mappings Explorer** (`/explorer`) - Paginated table view with filters
-3. **Visualization Detail** (`/visualization/:id`) - Tabs: Overview, Fields, Lineage, Calculations
+3. **Visualization Detail** (`/visualization/:id`) - Tabs: Overview, Fields (with AI Suggest), Lineage (with AI Analysis), Calculations (with AI Explain)
 4. **Audit & Changes** (`/audit`) - Track mapping changes and data lineage updates
 
 ## API Endpoints
 - `GET /api/stats` - Get aggregate statistics
-- `GET /api/insight/list` - Paginated list of insights (supports ?page, ?per_page, ?search, ?incomplete_only)
+- `GET /api/insight/list` - Paginated list of insights (supports ?page, ?per_page, ?search, ?incomplete_only, ?product)
 - `GET /api/insight/<id>` - Get single insight with full data points
 - `GET /api/insight/all` - Get all insights with full data (large response)
 - `GET /api/tabs` - List distinct tab names
+- `GET /api/products` - List distinct product names
+- `POST /api/ai/explain-calculation` - AI explanation of calculation logic
+- `POST /api/ai/suggest-mappings` - AI mapping suggestions for unmapped fields
+- `POST /api/ai/search` - Natural language search
+- `POST /api/ai/analyze-lineage` - AI lineage analysis
+- `POST /api/ai/chat` - General AI chat assistant
 
 ## Database Models
 - **Insight**: id, insight_name, tab_name, calculation, products_used_in, product
@@ -72,9 +89,13 @@ Current database statistics:
 
 ## Environment Variables
 - `DATABASE_URL` - PostgreSQL connection string (auto-configured by Replit)
+- `AI_INTEGRATIONS_OPENAI_API_KEY` - Auto-configured by Replit AI Integrations
+- `AI_INTEGRATIONS_OPENAI_BASE_URL` - Auto-configured by Replit AI Integrations
 
 ## Recent Changes
-- Loaded data from 10 data dictionary CSV files (WebPT, WinOMS, WSC, DenialIQ, Dentrix, DSN, HCHB, PrimaryCare-Aprima, PrimaryCare-Ethizo, Waystar)
-- Added optimized paginated API endpoints for performance
-- Updated database models to store enterprise and data dictionary field information
-- Frontend now uses efficient lazy-loading for visualization details
+- Added AI-powered features: calculation explanation, mapping suggestions, NL search, lineage analysis, chat assistant
+- AI service uses Replit AI Integrations (OpenAI GPT-5 model)
+- AiChat.jsx floating panel with chat and smart search modes
+- VisualizationDetail.jsx enhanced with AI buttons on Fields, Lineage, and Calculations tabs
+- Loaded data from 11 data dictionary files including AscendGP (Excel format)
+- Added Product filter (server-side) and product breakdown throughout UI

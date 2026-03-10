@@ -1,5 +1,6 @@
 import React, { useState, createContext, useContext } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import AiChat from './AiChat';
 
 const FilterContext = createContext();
 
@@ -120,6 +121,7 @@ export default function Layout() {
             <Outlet />
           </main>
         </div>
+        <AiChat />
       </div>
     </FilterContext.Provider>
   );
