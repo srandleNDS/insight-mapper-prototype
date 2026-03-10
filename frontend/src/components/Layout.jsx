@@ -127,7 +127,24 @@ export default function Layout() {
         </header>
 
         <div className="flex flex-1">
-          <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden flex-shrink-0`}>
+          {!sidebarOpen && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="flex-shrink-0 w-10 bg-white border-r border-gray-200 flex flex-col items-center pt-4 hover:bg-gray-50 transition-colors"
+              title="Show filters"
+            >
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+              </svg>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-2" style={{ writingMode: 'vertical-lr' }}>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="mt-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#18A69B] text-white text-[10px] font-bold">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          )}
+          <aside className={`${sidebarOpen ? 'w-64' : 'w-0 hidden'} bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden flex-shrink-0`}>
             <Sidebar 
               sidebarOpen={sidebarOpen} 
               setSidebarOpen={setSidebarOpen}
@@ -151,9 +168,38 @@ export default function Layout() {
   );
 }
 
+function FilterSection({ title, count, defaultOpen = true, children }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full group"
+      >
+        <div className="flex items-center gap-2">
+          <h4 className="text-xs font-bold text-gray-500 group-hover:text-gray-700">{title}</h4>
+          {count > 0 && (
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#18A69B] text-white text-[9px] font-bold">
+              {count}
+            </span>
+          )}
+        </div>
+        <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="mt-2">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleIncomplete, clearFilters, activeFilterCount, tabOptions, productOptions }) {
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Filters</h3>
@@ -173,7 +219,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleInc
             </button>
           )}
           <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            onClick={() => setSidebarOpen(false)}
             className="text-gray-400 hover:text-gray-600"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,8 +230,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleInc
       </div>
 
       <div className="space-y-4">
-        <div>
-          <h4 className="text-xs font-bold text-gray-500 mb-2">Tab Name</h4>
+        <FilterSection title="Tab Name" count={filters.tabName.length}>
           <div className="space-y-1 max-h-48 overflow-y-auto">
             {tabOptions.map(opt => (
               <label key={opt} className="flex items-center gap-2 cursor-pointer group">
@@ -199,10 +244,9 @@ function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleInc
               </label>
             ))}
           </div>
-        </div>
+        </FilterSection>
 
-        <div>
-          <h4 className="text-xs font-bold text-gray-500 mb-2">Product</h4>
+        <FilterSection title="Product" count={filters.product.length}>
           <div className="space-y-1">
             {productOptions.map(opt => (
               <label key={opt} className="flex items-center gap-2 cursor-pointer group">
@@ -216,7 +260,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen, filters, toggleFilter, toggleInc
               </label>
             ))}
           </div>
-        </div>
+        </FilterSection>
 
         <div className="pt-4 border-t border-gray-100">
           <label className="flex items-center gap-2 cursor-pointer">
