@@ -850,25 +850,25 @@ def upload_raw_source():
     col_map = {}
     for col in columns:
         cl = col.lower().strip()
-        if cl in ('source name', 'source_name', 'source system', 'source'):
+        if cl in ('source name', 'source_name', 'sourcename', 'source system', 'source'):
             col_map['source_name'] = col
-        elif cl in ('source type', 'source_type', 'type'):
+        elif cl in ('source type', 'source_type', 'sourcetype', 'type'):
             col_map['source_type'] = col
-        elif cl in ('table', 'table name', 'table_name', 'source table'):
+        elif cl in ('table', 'table name', 'table_name', 'tablename', 'source table'):
             col_map['table_name'] = col
-        elif cl in ('column', 'column name', 'column_name', 'source column', 'source column name', 'field', 'field name'):
+        elif cl in ('column', 'column name', 'column_name', 'columnname', 'source column', 'source column name', 'field', 'field name'):
             col_map['column_name'] = col
         elif cl in ('data type', 'data_type', 'datatype', 'source data type'):
             col_map['data_type'] = col
+        elif cl in ('schema', 'schema name', 'schemaname', 'db schema'):
+            col_map['schema'] = col
 
-    if 'source_name' not in col_map or 'table_name' not in col_map or 'column_name' not in col_map:
+    if 'source_name' not in col_map or 'column_name' not in col_map:
         missing = []
         if 'source_name' not in col_map:
-            missing.append('Source Name')
-        if 'table_name' not in col_map:
-            missing.append('Table')
+            missing.append('SourceName')
         if 'column_name' not in col_map:
-            missing.append('Column')
+            missing.append('ColumnName')
         return jsonify({"error": f"Missing required columns: {', '.join(missing)}. Found columns: {', '.join(columns)}"}), 400
 
     import uuid
@@ -879,7 +879,12 @@ def upload_raw_source():
         for i, row in enumerate(rows):
             src_name = row.get(col_map['source_name'], '').strip()
             src_type = row.get(col_map.get('source_type', ''), '').strip() if 'source_type' in col_map else ''
-            tbl = row.get(col_map['table_name'], '').strip()
+            tbl = row.get(col_map.get('table_name', ''), '').strip() if 'table_name' in col_map else ''
+            schema_val = row.get(col_map.get('schema', ''), '').strip() if 'schema' in col_map else ''
+            if schema_val and tbl:
+                tbl = f"{schema_val}.{tbl}"
+            elif schema_val and not tbl:
+                tbl = schema_val
             col_name = row.get(col_map['column_name'], '').strip()
             d_type = row.get(col_map.get('data_type', ''), '').strip() if 'data_type' in col_map else ''
 
@@ -1217,8 +1222,8 @@ def download_template(template_type):
                    'total_amount', 'PMS', 'WebPT', 'billing',
                    'total_charge', 'decimal', 'dbo.Billing', 'TotalCharge', 'money']
     elif template_type == 'source-data':
-        columns = ['Source Name', 'Source Type', 'Table', 'Column', 'Data Type']
-        example = ['WebPT', 'PMS', 'billing', 'total_charge', 'decimal']
+        columns = ['Schema', 'TableName', 'ColumnName', 'DataType', 'SourceType', 'SourceName']
+        example = ['dbo', 'billing', 'total_charge', 'decimal', 'PMS', 'WebPT']
     else:
         return jsonify({"error": "Invalid template type"}), 400
 
