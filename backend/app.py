@@ -1,11 +1,13 @@
 import os
 import csv
 import io
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from models import db, Insight, DataPoint, SourceMapping, UploadedSource
 
-app = Flask(__name__)
+STATIC_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'build')
+
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='')
 CORS(app)
 
 app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a-secret-key"
@@ -1240,5 +1242,12 @@ def download_template(template_type):
     )
 
 
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    if path and os.path.exists(os.path.join(STATIC_DIR, path)):
+        return send_from_directory(STATIC_DIR, path)
+    return send_from_directory(STATIC_DIR, 'index.html')
+
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

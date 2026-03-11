@@ -61,9 +61,9 @@ Current database statistics:
 - Cards/Panels: white
 
 ## Running the Application
-- Backend runs on port 8000 (localhost)
-- Frontend runs on port 5000 (0.0.0.0)
-- Frontend proxies API requests to backend
+- Single server: Flask runs on port 5000 serving both the API and the React static build
+- One workflow: "Backend API" (`cd backend && python app.py`) on port 5000 with webview output
+- After any frontend code changes, rebuild with `cd frontend && npm run build` then restart the workflow
 
 ## Pages
 1. **Dashboard** (`/`) - Overview with stats, recent visualizations, quick actions
