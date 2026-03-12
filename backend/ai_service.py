@@ -170,12 +170,12 @@ def predict_source_mappings(source_fields, product_data_points):
 
     source_list = []
     for sf in source_fields:
-        source_list.append(f"  {sf['source_name']} | {sf['table_name']}.{sf['column_name']} ({sf['data_type']})")
+        source_list.append(f"  {sf['source_name']} | {sf['table_name']}.{sf['column_name']}")
     source_str = "\n".join(source_list)
 
     dp_list = []
     for dp in product_data_points[:150]:
-        dp_list.append(f"  ID:{dp['id']} | \"{dp['viz_name']}\" | {dp['name']} | {dp['ent_table']}.{dp['ent_field']} ({dp['ent_type']})")
+        dp_list.append(f"  ID:{dp['id']} | \"{dp['viz_name']}\" | {dp['name']} | {dp['ent_table']}.{dp['ent_field']}")
     dp_str = "\n".join(dp_list)
 
     response = client.chat.completions.create(
@@ -183,12 +183,11 @@ def predict_source_mappings(source_fields, product_data_points):
         messages=[
             {
                 "role": "system",
-                "content": """You are a healthcare data mapping expert. Your job is to predict which source database fields map to which enterprise data dictionary fields based on naming conventions, data types, table structures, and domain knowledge.
+                "content": """You are a healthcare data mapping expert. Your job is to predict which source database fields map to which enterprise data dictionary fields based on naming conventions, table structures, and domain knowledge.
 
 Rules for matching:
 - Match source columns to enterprise data points based on semantic similarity of names
 - Consider table context (e.g., source table "billing" likely maps to enterprise fields about revenue/charges)
-- Data type compatibility matters (varchar->varchar, int->int, decimal->money, etc.)
 - Use healthcare domain knowledge (e.g., CPT codes, ICD codes, patient demographics, claims, billing)
 - A source field can map to multiple data points if appropriate
 - Not every source field will have a match - mark those as "none"
